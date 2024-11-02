@@ -100,11 +100,15 @@
             <!-- Content of the meeting room goes here -->
             <div class="h-75 w-full bg-gray-100 rounded-md relative">
                 <style>
-                    #videoElement,
+                    #videoElement {
+                        width: 781.328px;
+                        height: 391.984px;
+                        background-color: #777;
+                        border-radius: inherit;
+                    }
+
                     .vid-container {
-                        max-width: 900px;
-                        max-height: 450;
-                        width: 100%;
+                        width: 781.328px;
                         height: 100%;
                         background-color: #777;
                         border-radius: inherit;
@@ -215,12 +219,39 @@
 
 @push('scripts')
     <script>
+        // URLs for microphone and video images
         const microphoneUrl = 'https://i.pinimg.com/originals/b7/60/b3/b760b325414acc57d15a6133cbf59986.jpg';
         const videoUrl =
             'https://png.pngtree.com/png-vector/20230213/ourmid/pngtree-desktop-webcam-illustration-png-image_6598897.png';
 
-        const getPermissions = async () => {
+        // Preload images
+        const preloadImage = (url) => {
+            $('<link>', {
+                rel: 'preload',
+                href: url
+            }).appendTo('head');
+        };
+        preloadImage(microphoneUrl);
+        preloadImage(videoUrl);
 
+        let micllowed = cookieStore.get('mic-allowed') || 0;
+        let cameraAllowed = cookieStore.get('camera-allowed') || 0;
+        
+        // Listen For cookie changes
+        if ('cookieStore' in window) {
+            const listenableKeys = ['mic-allowed', 'camera-allowed'];
+
+            cookieStore.addEventListener('change', (event) => {
+                event.changed.forEach(cookie => {
+                    if(listenableKeys.includes(cookie.name)){
+                        micllowed = cookie.value;
+                    }
+                });
+            });
+        }
+
+        // Function to get permissions for microphone and camera
+        const getPermissions = async () => {
             try {
                 const micPerms = await navigator.permissions.query({
                     name: 'microphone'
@@ -228,202 +259,162 @@
                 const cameraPerms = await navigator.permissions.query({
                     name: 'camera'
                 });
-
-                return [
-                    micPerms.state,
-                    cameraPerms.state
-                ];
+                return [micPerms.state, cameraPerms.state];
             } catch (error) {
-                console.error("Error getting microphone permission:", error);
+                console.error("Error getting permissions:", error);
             }
-        }
+        };
 
-        getPermissions()
-            .then(async (rsp) => {
-                const perms = document.querySelectorAll('.forbidden-icon');
-                const btns = document.querySelectorAll('.btn-danger');
+        // Check and update UI based on permissions
+        getPermissions().then(async (permissions) => {
+            const [micState, cameraState] = permissions;
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            const buttons = document.querySelectorAll('.btn-danger');
 
-                if (rsp[0] == 'granted') {
-                    // Change ui As per the data.
-                    $(btns[0]).removeClass('not-allowed');
-                    $(btns[0]).removeClass('btn-danger');
-                    $(btns[0]).addClass('btn-primary');
-                    $(perms[0]).addClass('hidden');
+            if (micState === 'granted') {
+                // Update UI for microphone permission
+                $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+                $(permsIcons[0]).addClass('hidden');
 
-                    await cookieStore.set('mic-allowed', 1);
+                // Set cookie
+                cookieStore.set('mic-allowed', 1);
+            }
+
+            if (cameraState === 'granted') {
+                // Show video spinner and load video
+                $('.video-spinner').removeClass('d-none');
+                await loadVideoSrc();
+                $('.video-spinner').addClass('d-none');
+
+                // Update UI for camera permission
+                $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+                $(permsIcons[1]).addClass('hidden');
+
+                // Set cookie
+                cookieStore.set('camera-allowed', 1);
+            } else {
+                $('.heading').removeClass('hidden');
+            }
+        });
+
+        // Function to request microphone permission
+        const requestMicrophone = async () => {
+            const [micState] = await getPermissions();
+            if (micState !== 'granted' && micState === 'prompt') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        audio: true
+                    });
+                    updateMicrophoneUI();
+                    $('#closeModal').click(); // Close modal after permission
+                } catch {
+                    showError('Microphone access not granted.');
                 }
+            }
+        };
 
-                if (rsp[1] == 'granted') {
-                    // Show Spinner When The Video Loads
-                    $('.video-spinner').removeClass('d-none')
+        // Function to update the UI when microphone permission is granted
+        const updateMicrophoneUI = () => {
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            const buttons = document.querySelectorAll('.btn-danger');
+            $(permsIcons[0]).addClass('hidden');
+            $(buttons[0]).removeClass('btn-danger not-allowed').addClass('btn-primary');
+        };
 
-                    // Load Video
-                    await loadVideoSrc();
-
-                    // Remove Spinner When Video Loaded
-                    $('.video-spinner').addClass('d-none')
-
-                    // $('.overlay-heading').hide();
-                    // Make the Button Primary
-                    $(btns[1]).removeClass('btn-danger');
-
-                    // Hide the not allowed content
-                    $(perms[1]).addClass('hidden');
-                } else if (rsp[1] !== 'granted') {
-
-
-                    $('.heading').removeClass('hidden');
-                }
-            })
-
-        // Preload Microphone image url
-        $('<link>', {
-            rel: 'preload',
-            href: microphoneUrl
-        }).appendTo('head');
-
-        // Preload video image URL
-        $('<link>', {
-            rel: 'preload',
-            href: videoUrl
-        }).appendTo('head');
-
-        const requestMicrphone = async () => {
-            await getPermissions()
-                .then((status) => {
-                    if (status[0] !== 'granted' && status[0] === 'prompt') {
-                        // Request browser for mic access
-                        navigator.mediaDevices.getUserMedia({
-                                audio: true
-                            })
-                            .then(stream => {
-
-                                const perms = document.querySelectorAll('.forbidden-icon');
-
-                                $(perms[0]).addClass('hidden');
-
-                                // Close modal
-                                $('#closeModal').click();
-                            })
-                            .catch(error => {
-                                $('#error-context').removeClass('hidden');
-                                $('#error-context').text('Microphone access Not granted.');
-                            });
-                    }
-                });
-        }
-
+        // Function to request camera permission
         const requestCamera = async () => {
-            await getPermissions()
-                .then((status) => {
-                    if (status[1] !== 'granted' && status[1] === 'prompt') {
-                        // Request browser for mic access
-                        navigator.mediaDevices.getUserMedia({
-                                video: true
-                            })
-                            .then(async (stream) => {
+            const [, cameraState] = await getPermissions();
+            if (cameraState !== 'granted' && cameraState === 'prompt') {
+                await loadVideoSrc();
+            }
+        };
 
-                                // Load the video
-                                await loadVideoSrc();
-
-                                // Listen The Video Track.
-                                stream.getVideoTracks()[0].onended = handleCameraEnd
-
-                                $('#videoElement').on('loadedmetadata', function() {
-                                    const perms = document.querySelectorAll('.forbidden-icon');
-
-                                    // Remove heading
-                                    $('.heading').remove();
-
-                                    // Remove forbidden
-                                    $(perms[1]).addClass('hidden');
-
-                                    // Close modal
-                                    $('#closeModal').click();
-                                })
-
-                            })
-                            .catch(error => {
-                                console.log(error);
-
-                                $('#error-context').removeClass('hidden');
-                                $('#error-context').text('Microphone access Not granted.');
-                            });
-                    }
-                });
-        }
-
-        const loadVideoSrc = async () => {
-            // Request video 
-            await navigator.mediaDevices.getUserMedia({
+        // Load and play video from camera
+        const loadVideoSrc = async (width = 900, height = 450) => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'environment',
-                        width: 900,
-                        height: 450
+                        width,
+                        height
                     }
-                })
+                });
+                const videoElement = document.getElementById('videoElement');
+                videoElement.srcObject = stream;
+                videoElement.play();
 
-                //Load video when its loaded
-                .then((stream) => {
-                    var video = document.getElementById('videoElement');
-                    video.srcObject = stream;
-                    video.play();
-                })
-        }
+                // Handle video track ending
+                stream.getVideoTracks()[0].onended = () => handleCameraEnd(videoElement);
 
-        const handleCameraEnd = () => {
-            console.log('ENeded');
-
-        }
-
-        const openModal = (e, type) => {
-            let heading, desc, src, mediaButton, onclick;
-
-            if (type == 0) {
-                heading = 'Let The people hear what you say.';
-                desc = 'To talk To anyone, please enable your microphone for audio input.';
-                src = microphoneUrl;
-                mediaButton = 'Enable Microphone';
-                onclick = requestMicrphone;
+                // On video metadata load, update UI
+                $('#videoElement').on('loadedmetadata', () => {
+                    const permsIcons = document.querySelectorAll('.forbidden-icon');
+                    const buttons = document.querySelectorAll('.btn-danger');
+                    $('.heading').addClass('hidden');
+                    $(permsIcons[1]).addClass('hidden');
+                    $(buttons[1]).removeClass('btn-danger not-allowed').addClass('btn-primary');
+                    $('#closeModal').click();
+                });
+            } catch {
+                showError('Camera access not granted.');
             }
+        };
 
-            if (type == 1) {
-                heading = 'Let The people Talk with you in live with webcame.';
-                desc = 'Enable webcame to talk with people in live.';
-                src = videoUrl;
-                mediaButton = 'Enable WebCame';
-                onclick = requestCamera;
-            }
+        // Function to handle camera stop event
+        const handleCameraEnd = (videoElement) => {
+            videoElement.srcObject = null;
 
-            $('#modal-heading').text(heading);
-            $('#modal-desc').text(desc);
-            $('#modal-image').attr('src', src);
-            $('#mediaButton').text(mediaButton);
-            $('#mediaButton').off('click').on('click', onclick); // Remove previous handlers and set new one
+            $('.heading').removeClass('hidden').text('The webcam has been disabled');
+            $('.btn-danger').eq(1).addClass('not-allowed btn-danger').removeClass('btn-primary');
+        };
 
-            $('#modal').css('display', 'flex'); // Show modal
-            setTimeout(() => {
-                $('#modal').removeClass('opacity-0 pointer-events-none');
-                $('#modal > div').removeClass('scale-95');
-            }, 10); // Slight delay to allow CSS transition
-        }
+        // Show error in the UI
+        const showError = (message) => {
+            $('#error-context').removeClass('hidden').text(message);
+        };
 
+        // Open modal with specified type (0 for mic, 1 for camera)
+        const openModal = (event, type) => {
+            const modalData = {
+                0: {
+                    heading: 'Let people hear what you say.',
+                    desc: 'To talk, please enable your microphone for audio input.',
+                    src: microphoneUrl,
+                    buttonText: 'Enable Microphone',
+                    onClick: requestMicrophone
+                },
+                1: {
+                    heading: 'Talk live with people using webcam.',
+                    desc: 'Enable webcam to talk live.',
+                    src: videoUrl,
+                    buttonText: 'Enable Webcam',
+                    onClick: requestCamera
+                }
+            };
+
+            const data = modalData[type];
+            $('#modal-heading').text(data.heading);
+            $('#modal-desc').text(data.desc);
+            $('#modal-image').attr('src', data.src);
+            $('#mediaButton').text(data.buttonText).off('click').on('click', data.onClick);
+
+            $('#modal').css('display', 'flex').removeClass('opacity-0 pointer-events-none');
+            setTimeout(() => $('#modal > div').removeClass('scale-95'), 10);
+        };
+
+        // Close modal logic
         $('#closeModal').on('click', () => {
             $('#modal').addClass('opacity-0 pointer-events-none');
             $('#modal > div').addClass('scale-95');
-            setTimeout(() => {
-                $('#modal').css('display', 'none'); // Hide modal after transition
-            }, 300); // Match this duration with the CSS transition duration
+            setTimeout(() => $('#modal').css('display', 'none'), 300);
         });
 
-        // Close modal when clicking outside of the modal content
+        // Close modal when clicking outside modal content
         $(window).on('click', (event) => {
             if ($(event.target).is('#modal')) {
                 $('#modal').addClass('opacity-0 pointer-events-none');
                 $('#modal > div').addClass('scale-95');
-                setTimeout(() => {
-                    $('#modal').css('display', 'none'); // Hide modal after transition
-                }, 300); // Match this duration with the CSS transition duration
+                setTimeout(() => $('#modal').css('display', 'none'), 300);
             }
         });
     </script>
