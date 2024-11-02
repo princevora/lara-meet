@@ -10,10 +10,15 @@
             <legend>Enter Your Name to continue</legend>
             <div class="mb-3">
                 <label class="form-label">Name</label>
-                <input type="text" class="form-control" placeholder="John Doe">
+                <input wire:model='name' type="text" class="form-control" placeholder="John Doe">
+                @error('name')
+                    <small class="text-danger">
+                        {{ $message }}
+                    </small>
+                @enderror
             </div>
 
-            <button type="submit" wire:loading.attr.disabled class="d-flex1 btn gap-2 btn-primary w-full">
+            <button type="submit" wire:loading.attr.disabled='true' class="d-flex1 btn gap-2 btn-primary w-full">
                 Continue
                 <div wire:loading wire:target='save' class="spinner-border text-white spinner-border-sm" role="status">
                     <span class="visually-hidden">Loading...</span>
