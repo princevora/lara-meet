@@ -268,6 +268,8 @@
             $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
             $(permsIcons[0]).addClass('hidden');
 
+            $('#warn-mic').addClass('hidden');
+
             await loadSound();
 
             // Set cookie
@@ -282,16 +284,13 @@
             $('.video-spinner').removeClass('d-none');
             $('.heading').addClass('hidden');
 
+            $('#warn-camera').addClass('hidden');
+            
             // Load video
             await loadVideoSrc();
 
             // Remove spinner
             $('.video-spinner').addClass('d-none');
-
-
-            // Update UI for camera permission
-            $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
-            $(permsIcons[1]).addClass('hidden');
 
             // Set cookie
             cookieStore.set('camera-allowed', 1);
@@ -323,9 +322,11 @@
             if (e.currentTarget.state) {
                 const state = e.currentTarget.state;
 
-                if (state == 'granted') {
+                if (state == 'granted') 
                     return handleGrantedMic()
-                };
+                if(state == 'denied')
+                    $('#warn-mic').removeClass('hidden');
+
             }
         }
 
@@ -333,9 +334,10 @@
             if (e.currentTarget.state) {
                 const state = e.currentTarget.state;
 
-                if (state == 'granted') {
+                if (state == 'granted') 
                     return handleGrantedCamera()
-                };
+                if(state == 'denied')
+                    $('#warn-camera').removeClass('hidden');
             }
         }
 
@@ -410,6 +412,12 @@
         // Load and play video from camera
         const loadVideoSrc = async (width = 900, height = 450) => {
             try {
+                const permsIcons = document.querySelectorAll('.forbidden-icon');
+                const buttons = document.querySelectorAll('.btn-circle');
+
+                $(permsIcons[1]).addClass('hidden');
+                $(buttons[1]).removeClass('btn-danger not-allowed').addClass('btn-primary');
+
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: 'environment',
@@ -426,11 +434,8 @@
 
                 // On video metadata load, update UI
                 $('#videoElement').on('loadedmetadata', () => {
-                    const permsIcons = document.querySelectorAll('.forbidden-icon');
-                    const buttons = document.querySelectorAll('.btn-circle');
                     $('.heading').addClass('hidden');
-                    $(permsIcons[1]).addClass('hidden');
-                    $(buttons[1]).removeClass('btn-danger not-allowed').addClass('btn-primary');
+                                        
                     $('#closeModal').click();
                 });
             } catch {
