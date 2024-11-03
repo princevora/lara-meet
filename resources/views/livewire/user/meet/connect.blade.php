@@ -162,15 +162,25 @@
                     <h2 class="hidden overlay-heading heading">The Camera Content Will Appear Here</h2>
                     <video autoplay="true" id="videoElement" playsinline style="transform: scaleX(-1)"></video>
                     <!-- Bottom center: Microphone and Camera buttons -->
-                    <div class="media-btns flex justify-center mt-4">
+                    <div class="media-btns flex justify-center mt-4 relative">
                         <button type="button" data-type="0" onclick="openModal(event, 0)"
                             class="btn btn-circle btn-danger mx-2 not-allowed" id="mic">
                             <i class="fas fa-microphone-alt main-icon"></i> <!-- Microphone icon -->
+                            <span id="warn-mic"
+                                class=" position-absolute top-0 translate-middle badge rounded-pill bg-warning">
+                                !
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
                             <span class="forbidden-icon"> \ </span> <!-- Forbidden backslash -->
                         </button>
                         <button type="button" data-type="1" onclick="openModal(event, 1)" id="webcame"
-                            class="btn btn-circle btn-danger mx-2 not-allowed">
+                            class="btn btn-circle btn-danger mx-2 not-allowed relative">
                             <i class="fas fa-video main-icon"></i> <!-- Camera icon -->
+                            <span id="warn-camera"
+                                class=" position-absolute top-0 translate-middle badge rounded-pill bg-warning">
+                                !
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
                             <span class="forbidden-icon"> \ </span> <!-- Forbidden backslash -->
                         </button>
                     </div>
@@ -236,14 +246,14 @@
 
         let micllowed = cookieStore.get('mic-allowed') || 0;
         let cameraAllowed = cookieStore.get('camera-allowed') || 0;
-        
+
         // Listen For cookie changes
         if ('cookieStore' in window) {
             const listenableKeys = ['mic-allowed', 'camera-allowed'];
 
             cookieStore.addEventListener('change', (event) => {
                 event.changed.forEach(cookie => {
-                    if(listenableKeys.includes(cookie.name)){
+                    if (listenableKeys.includes(cookie.name)) {
                         micllowed = cookie.value;
                     }
                 });
@@ -259,11 +269,37 @@
                 const cameraPerms = await navigator.permissions.query({
                     name: 'camera'
                 });
+
+                micPerms.onchange = handleMicChange;
+                cameraPerms.onchange = handleCameraChange;
+
                 return [micPerms.state, cameraPerms.state];
             } catch (error) {
                 console.error("Error getting permissions:", error);
             }
         };
+
+        const handleMicChange = (e) => {
+
+            if (e.currentTarget.state) {
+                const state = e.currentTarget.state;
+
+                if (state == 'granted') {
+                    handleGrantedMic()
+                };
+            }
+        }
+
+        const handleCameraChange = (e) => {
+            if (e.currentTarget.state) {
+                const state = e.currentTarget.state;
+
+                if (state == 'granted') {
+                    
+                    handleGrantedCamera()
+                };
+            }
+        }
 
         // Check and update UI based on permissions
         getPermissions().then(async (permissions) => {
@@ -272,44 +308,74 @@
             const buttons = document.querySelectorAll('.btn-danger');
 
             if (micState === 'granted') {
-                // Update UI for microphone permission
-                $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
-                $(permsIcons[0]).addClass('hidden');
-
-                // Set cookie
-                cookieStore.set('mic-allowed', 1);
+                handleGrantedMic();
             }
 
             if (cameraState === 'granted') {
-                // Show video spinner and load video
-                $('.video-spinner').removeClass('d-none');
-                await loadVideoSrc();
-                $('.video-spinner').addClass('d-none');
-
-                // Update UI for camera permission
-                $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
-                $(permsIcons[1]).addClass('hidden');
-
-                // Set cookie
-                cookieStore.set('camera-allowed', 1);
+                handleGrantedCamera()
             } else {
                 $('.heading').removeClass('hidden');
             }
         });
+
+        // const handleGrantedMic = async () => {
+        //     const permsIcons = document.querySelectorAll('.forbidden-icon');
+        //     const buttons = document.querySelectorAll('.btn-danger');
+
+        //     // Update UI for microphone permission
+        //     $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+        //     $(permsIcons[0]).addClass('hidden');
+
+        //     await loadSound();
+
+        //     // Set cookie
+        //     cookieStore.set('mic-allowed', 1);
+        // }
+
+        const handleGrantedCamera = async () => {
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            const buttons = document.querySelectorAll('.btn-danger');
+
+            // Show video spinner and load video
+            $('.video-spinner').removeClass('d-none');
+            
+            // Load video
+            await loadVideoSrc();
+            
+            // Remove spinner
+            $('.video-spinner').addClass('d-none');
+            
+
+            // Update UI for camera permission
+            $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+            $(permsIcons[1]).addClass('hidden');
+
+            // Set cookie
+            cookieStore.set('camera-allowed', 1);
+        }
 
         // Function to request microphone permission
         const requestMicrophone = async () => {
             const [micState] = await getPermissions();
             if (micState !== 'granted' && micState === 'prompt') {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    });
+                    await loadSound();
+
                     updateMicrophoneUI();
-                    $('#closeModal').click(); // Close modal after permission
+
+                    cookieStore.set('mic-allowed', 1);
+
+                    $('#closeModal').click();
+
                 } catch {
                     showError('Microphone access not granted.');
                 }
+            }
+
+
+            if (micState == 'denied') {
+                showError(
+                    'You have denied microphone permission please enable it in site setting from your browser');
             }
         };
 
@@ -317,6 +383,7 @@
         const updateMicrophoneUI = () => {
             const permsIcons = document.querySelectorAll('.forbidden-icon');
             const buttons = document.querySelectorAll('.btn-danger');
+
             $(permsIcons[0]).addClass('hidden');
             $(buttons[0]).removeClass('btn-danger not-allowed').addClass('btn-primary');
         };
@@ -326,6 +393,12 @@
             const [, cameraState] = await getPermissions();
             if (cameraState !== 'granted' && cameraState === 'prompt') {
                 await loadVideoSrc();
+
+                cookieStore.set('camera-allowed', 1);
+            }
+
+            if (cameraState == 'denied') {
+                showError('You have denied webcame permission please enable it in site setting from your browser');
             }
         };
 
@@ -360,12 +433,49 @@
             }
         };
 
+        // Load sounds
+        const loadSound = async (width = 900, height = 450) => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+
+                // Handle video track ending
+                stream.getAudioTracks()[0].onended = handleMIcrophoneEnd;
+
+            } catch {
+                showError('Camera access not granted.');
+            }
+        };
+
         // Function to handle camera stop event
         const handleCameraEnd = (videoElement) => {
             videoElement.srcObject = null;
 
+            // Change cookie
+            cookieStore.set('camera-allowed', 0);
+
+            // Show forbidden icon
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            $(permsIcons[1]).removeClass('hidden');
+
+
             $('.heading').removeClass('hidden').text('The webcam has been disabled');
-            $('.btn-danger').eq(1).addClass('not-allowed btn-danger').removeClass('btn-primary');
+            $('.btn-circle').eq(1).addClass('not-allowed btn-danger').removeClass('btn-primary');
+        };
+
+        // Function to handle audio stop event
+        const handleMIcrophoneEnd = () => {
+
+            // Change cookie
+            cookieStore.set('mic-allowed', 0);
+
+            // Show forbidden icon
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            $(permsIcons[0]).removeClass('hidden');
+
+
+            $('.btn-circle').eq(0).addClass('not-allowed btn-danger').removeClass('btn-primary');
         };
 
         // Show error in the UI
@@ -406,6 +516,10 @@
         $('#closeModal').on('click', () => {
             $('#modal').addClass('opacity-0 pointer-events-none');
             $('#modal > div').addClass('scale-95');
+
+            // remove error
+            $('#error-context').addClass('hidden').text('');
+
             setTimeout(() => $('#modal').css('display', 'none'), 300);
         });
 
@@ -414,6 +528,10 @@
             if ($(event.target).is('#modal')) {
                 $('#modal').addClass('opacity-0 pointer-events-none');
                 $('#modal > div').addClass('scale-95');
+
+                // remove error
+                $('#error-context').addClass('hidden').text('');
+
                 setTimeout(() => $('#modal').css('display', 'none'), 300);
             }
         });
