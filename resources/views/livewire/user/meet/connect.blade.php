@@ -260,6 +260,43 @@
             });
         }
 
+        const handleGrantedMic = async () => {
+            const permsIcons = document.querySelectorAll('.forbidden-icon');
+            const buttons = document.querySelectorAll('.btn-danger');
+
+            // Update UI for microphone permission
+            $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+            $(permsIcons[0]).addClass('hidden');
+
+            await loadSound();
+
+            // Set cookie
+            cookieStore.set('mic-allowed', 1);
+        }
+
+        // const handleGrantedCamera = async () => {
+        //     const permsIcons = document.querySelectorAll('.forbidden-icon');
+        //     const buttons = document.querySelectorAll('.btn-danger');
+
+        //     // Show video spinner and load video
+        //     $('.video-spinner').removeClass('d-none');
+
+        //     // Load video
+        //     await loadVideoSrc();
+
+        //     // Remove spinner
+        //     $('.video-spinner').addClass('d-none');
+
+
+        //     // Update UI for camera permission
+        //     $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+        //     $(permsIcons[1]).addClass('hidden');
+
+        //     // Set cookie
+        //     cookieStore.set('camera-allowed', 1);
+        // }
+
+
         // Function to get permissions for microphone and camera
         const getPermissions = async () => {
             try {
@@ -295,7 +332,7 @@
                 const state = e.currentTarget.state;
 
                 if (state == 'granted') {
-                    
+
                     handleGrantedCamera()
                 };
             }
@@ -317,42 +354,6 @@
                 $('.heading').removeClass('hidden');
             }
         });
-
-        // const handleGrantedMic = async () => {
-        //     const permsIcons = document.querySelectorAll('.forbidden-icon');
-        //     const buttons = document.querySelectorAll('.btn-danger');
-
-        //     // Update UI for microphone permission
-        //     $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
-        //     $(permsIcons[0]).addClass('hidden');
-
-        //     await loadSound();
-
-        //     // Set cookie
-        //     cookieStore.set('mic-allowed', 1);
-        // }
-
-        const handleGrantedCamera = async () => {
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            const buttons = document.querySelectorAll('.btn-danger');
-
-            // Show video spinner and load video
-            $('.video-spinner').removeClass('d-none');
-            
-            // Load video
-            await loadVideoSrc();
-            
-            // Remove spinner
-            $('.video-spinner').addClass('d-none');
-            
-
-            // Update UI for camera permission
-            $(buttons[1]).removeClass('not-allowed btn-danger').addClass('btn-primary');
-            $(permsIcons[1]).addClass('hidden');
-
-            // Set cookie
-            cookieStore.set('camera-allowed', 1);
-        }
 
         // Function to request microphone permission
         const requestMicrophone = async () => {
@@ -444,7 +445,7 @@
                 stream.getAudioTracks()[0].onended = handleMIcrophoneEnd;
 
             } catch {
-                showError('Camera access not granted.');
+                showError('Microphone access not granted.');
             }
         };
 
