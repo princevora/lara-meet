@@ -229,12 +229,11 @@
 
 @push('scripts')
     <script>
-        // URLs for microphone and video images
+        // Preload images for the modal to improve user experience
         const microphoneUrl = 'https://i.pinimg.com/originals/b7/60/b3/b760b325414acc57d15a6133cbf59986.jpg';
         const videoUrl =
             'https://png.pngtree.com/png-vector/20230213/ourmid/pngtree-desktop-webcam-illustration-png-image_6598897.png';
 
-        // Preload images
         const preloadImage = (url) => {
             $('<link>', {
                 rel: 'preload',
@@ -244,60 +243,59 @@
         preloadImage(microphoneUrl);
         preloadImage(videoUrl);
 
-        let micllowed = cookieStore.get('mic-allowed') || 0;
-        let cameraAllowed = cookieStore.get('camera-allowed') || 0;
+        // Variables to track permission status
+        let micAllowed = 0;
+        let cameraAllowed = 0;
 
-        // Listen For cookie changes
+        // Initialize cookie-based state management for mic and camera permissions
         if ('cookieStore' in window) {
-            const listenableKeys = ['mic-allowed', 'camera-allowed'];
+            cookieStore.get('mic-allowed').then(value => micAllowed = value?.value || 0);
+            cookieStore.get('camera-allowed').then(value => cameraAllowed = value?.value || 0);
 
+            // Listen for changes in the cookies and update states accordingly
             cookieStore.addEventListener('change', (event) => {
                 event.changed.forEach(cookie => {
-                    if (listenableKeys.includes(cookie.name)) {
-                        micllowed = cookie.value;
-                    }
+                    if (cookie.name === 'mic-allowed') micAllowed = cookie.value;
+                    if (cookie.name === 'camera-allowed') cameraAllowed = cookie.value;
                 });
             });
         }
 
-        const handleGrantedMic = async () => {
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            const buttons = document.querySelectorAll('.btn-circle');
+        // Function to request access to media devices
+        const toggleMedia = async (mediaConstraints) => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+                return stream;
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+                showError('Unable to access media devices.');
+            }
+        };
 
-            // Update UI for microphone permission
+        // UI update and permission handling functions
+        const handleGrantedMic = async () => {
+            const [permsIcons, buttons] = getDomElements();
             $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
             $(permsIcons[0]).addClass('hidden');
-
             $('#warn-mic').addClass('hidden');
 
             await loadSound();
-
-            // Set cookie
-            cookieStore.set('mic-allowed', 1);
-        }
+            buttons[0].onclick = () => toggleMic();
+            await cookieStore.set('mic-allowed', 1);
+        };
 
         const handleGrantedCamera = async () => {
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            const buttons = document.querySelectorAll('.btn-circle');
-
-            // Show video spinner and load video
+            const [permsIcons, buttons] = getDomElements();
             $('.video-spinner').removeClass('d-none');
             $('.heading').addClass('hidden');
-
             $('#warn-camera').addClass('hidden');
-            
-            // Load video
+
             await loadVideoSrc();
-
-            // Remove spinner
             $('.video-spinner').addClass('d-none');
+            await cookieStore.set('camera-allowed', 1);
+        };
 
-            // Set cookie
-            cookieStore.set('camera-allowed', 1);
-        }
-
-
-        // Function to get permissions for microphone and camera
+        // Retrieve permissions and assign change handlers
         const getPermissions = async () => {
             try {
                 const micPerms = await navigator.permissions.query({
@@ -310,132 +308,114 @@
                 });
                 cameraPerms.onchange = handleCameraChange;
 
-
                 return [micPerms.state, cameraPerms.state];
             } catch (error) {
                 console.error("Error getting permissions:", error);
+                showError("Could not check permissions. Please try again.");
             }
         };
 
-        const handleMicChange = (e) => {
+        // Toggle microphone permissions and handle UI changes
+        const toggleMic = async () => {
+            const currentValue = await cookieStore.get('mic-allowed');
+            const newValue = (Number(currentValue?.value) ^ 1).toString();
+            await cookieStore.set('mic-allowed', newValue);
 
+            const [micState] = await getPermissions();
+            const [, buttons] = getDomElements();
+
+            if (Number(newValue) === 1 && micState === 'granted') {
+                updateMicrophoneUI();
+                buttons[0].onclick = () => toggleMic();
+            } else {
+                if (micState !== 'granted') buttons[0].onclick = (event) => openModal(event, 0);
+                showMicWarning();
+            }
+        };
+
+        // Handle permission change for microphone
+        const handleMicChange = (e) => {
             if (e.currentTarget.state) {
                 const state = e.currentTarget.state;
+                const [, buttons] = getDomElements();
 
-                if (state == 'granted') 
-                    return handleGrantedMic()
-                if(state == 'denied')
+                if (state === 'granted') {
+                    handleGrantedMic();
+                } else if (state === 'denied' || state === 'prompt') {
                     $('#warn-mic').removeClass('hidden');
-
+                    buttons[0].onclick = (event) => openModal(event, 0);
+                }
             }
-        }
+        };
 
+        // Handle permission change for camera
         const handleCameraChange = (e) => {
             if (e.currentTarget.state) {
                 const state = e.currentTarget.state;
-
-                if (state == 'granted') 
-                    return handleGrantedCamera()
-                if(state == 'denied')
-                    $('#warn-camera').removeClass('hidden');
+                if (state === 'granted') handleGrantedCamera();
+                if (state === 'denied') $('#warn-camera').removeClass('hidden');
             }
-        }
+        };
 
-        // Check and update UI based on permissions
-        getPermissions().then(async (permissions) => {
-            const [micState, cameraState] = permissions;
+        // Helper function to update the microphone UI
+        const updateMicrophoneUI = () => {
+            const [permsIcons, buttons] = getDomElements();
+            $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
+            $(permsIcons[0]).addClass('hidden');
+            $('#warn-mic').addClass('hidden');
+        };
 
-            if (micState === 'granted') {
-                handleGrantedMic();
-            }
-
-            if (cameraState === 'granted') {
-                handleGrantedCamera()
-            } else {
-                $('.heading').removeClass('hidden');
-            }
-        });
-
-        // Function to request microphone permission
+        // Request microphone access and update UI accordingly
         const requestMicrophone = async () => {
             const [micState] = await getPermissions();
-            
             if (micState !== 'granted' && micState === 'prompt') {
                 try {
-
                     await loadSound();
-
                     updateMicrophoneUI();
-
-                    cookieStore.set('mic-allowed', 1);
-
+                    await cookieStore.set('mic-allowed', 1);
                     $('#closeModal').click();
-
                 } catch {
                     showError('Microphone access not granted.');
                 }
-            }
-
-
-            if (micState == 'denied') {
-                showError(
-                    'You have denied microphone permission please enable it in site setting from your browser');
+            } else if (micState === 'denied') {
+                showError('You have denied microphone permission. Please enable it in site settings.');
             }
         };
 
-        // Function to update the UI when microphone permission is granted
-        const updateMicrophoneUI = () => {
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            const buttons = document.querySelectorAll('.btn-circle');
-
-            $(permsIcons[0]).addClass('hidden');
-            $(buttons[0]).removeClass('btn-danger not-allowed').addClass('btn-primary');
-        };
-
-        // Function to request camera permission
+        // Request camera access and update UI accordingly
         const requestCamera = async () => {
             const [, cameraState] = await getPermissions();
             if (cameraState !== 'granted' && cameraState === 'prompt') {
-                // await loadVideoSrc();
-
                 return handleGrantedCamera();
-
-                // cookieStore.set('camera-allowed', 1);
-            }
-
-            if (cameraState == 'denied') {
-                return showError(
-                    'You have denied webcame permission please enable it in site setting from your browser');
+            } else if (cameraState === 'denied') {
+                showError('You have denied webcam permission. Please enable it in site settings.');
             }
         };
 
-        // Load and play video from camera
+        // Load video stream and handle video UI updates
         const loadVideoSrc = async (width = 900, height = 450) => {
             try {
-                const permsIcons = document.querySelectorAll('.forbidden-icon');
-                const buttons = document.querySelectorAll('.btn-circle');
-
+                const [permsIcons, buttons] = getDomElements();
                 $(permsIcons[1]).addClass('hidden');
                 $(buttons[1]).removeClass('btn-danger not-allowed').addClass('btn-primary');
 
-                const stream = await navigator.mediaDevices.getUserMedia({
+                const media = {
                     video: {
                         facingMode: 'environment',
                         width,
                         height
                     }
-                });
+                };
+                const stream = await toggleMedia(media);
+
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
                 videoElement.play();
 
-                // Handle video track ending
+                // Stop the video track when it ends
                 stream.getVideoTracks()[0].onended = () => handleCameraEnd(videoElement);
-
-                // On video metadata load, update UI
                 $('#videoElement').on('loadedmetadata', () => {
                     $('.heading').addClass('hidden');
-                                        
                     $('#closeModal').click();
                 });
             } catch {
@@ -443,108 +423,85 @@
             }
         };
 
-        // Load sounds
-        const loadSound = async (width = 900, height = 450) => {
+        // Load audio stream for the microphone
+        const loadSound = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                });
-
-                // Handle video track ending
-                stream.getAudioTracks()[0].onended = handleMIcrophoneEnd;
-
-            } catch {
+                const media = {
+                    audio: true
+                };
+                const stream = await toggleMedia(media);
+                stream.getAudioTracks()[0].onended = handleMicrophoneEnd;
+            } catch (error) {
+                console.error('Microphone access error:', error);
                 showError('Microphone access not granted.');
             }
         };
 
-        // Function to handle audio stop event
-        const handleMIcrophoneEnd = () => {
-
-            // Change cookie
+        // Event handler for when the microphone is turned off
+        const handleMicrophoneEnd = () => {
             cookieStore.set('mic-allowed', 0);
-
-            // Show forbidden icon
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            $(permsIcons[0]).removeClass('hidden');
-
-
-            $('.btn-circle').eq(0).addClass('not-allowed btn-danger').removeClass('btn-primary');
+            showMicWarning();
         };
 
-        // Function to handle camera stop event
+        // Event handler for when the camera is turned off
         const handleCameraEnd = (videoElement) => {
             videoElement.srcObject = null;
-
-            // Change cookie
             cookieStore.set('camera-allowed', 0);
-
-            // Show forbidden icon
-            const permsIcons = document.querySelectorAll('.forbidden-icon');
-            $(permsIcons[1]).removeClass('hidden');
-
-
-            $('.heading').removeClass('hidden').text('The webcam has been disabled');
-            $('.btn-circle').eq(1).addClass('not-allowed btn-danger').removeClass('btn-primary');
+            showCameraWarning();
         };
 
-        // Show error in the UI
+        // Display an error message on the UI
         const showError = (message) => {
             $('#error-context').removeClass('hidden').text(message);
         };
 
-        // Open modal with specified type (0 for mic, 1 for camera)
+        // Open the permissions modal with context-specific details
         const openModal = (event, type) => {
             const modalData = {
                 0: {
                     heading: 'Let people hear what you say.',
                     desc: 'To talk, please enable your microphone for audio input.',
                     src: microphoneUrl,
-                    buttonText: 'Enable Microphone',
-                    onClick: requestMicrophone
+                    buttonAction: requestMicrophone
                 },
                 1: {
-                    heading: 'Talk live with people using webcam.',
-                    desc: 'Enable webcam to talk live.',
+                    heading: 'Make yourself seen on the screen.',
+                    desc: 'To display yourself, enable camera permissions.',
                     src: videoUrl,
-                    buttonText: 'Enable Webcam',
-                    onClick: requestCamera
+                    buttonAction: requestCamera
                 }
             };
 
-            const data = modalData[type];
-            $('#modal-heading').text(data.heading);
-            $('#modal-desc').text(data.desc);
-            $('#modal-image').attr('src', data.src);
-            $('#mediaButton').text(data.buttonText).off('click').on('click', data.onClick);
+            const {
+                heading,
+                desc,
+                src,
+                buttonAction
+            } = modalData[type];
+            const modal = $('#app-modal');
 
-            $('#modal').css('display', 'flex').removeClass('opacity-0 pointer-events-none');
-            setTimeout(() => $('#modal > div').removeClass('scale-95'), 10);
+            modal.find('.heading').text(heading);
+            modal.find('img').attr('src', src);
+            modal.find('.text-desc').text(desc);
+
+            $('#allow-action').click(() => buttonAction());
+            $('#closeModal').click(() => modal.modal('hide'));
+
+            modal.modal('show');
         };
 
-        // Close modal logic
-        $('#closeModal').on('click', () => {
-            $('#modal').addClass('opacity-0 pointer-events-none');
-            $('#modal > div').addClass('scale-95');
+        // Utility function to get common DOM elements
+        const getDomElements = () => {
+            const permsIcons = $('.perms-icon');
+            const buttons = $('.toggle-button');
+            return [permsIcons, buttons];
+        };
 
-            // remove error
-            $('#error-context').addClass('hidden').text('');
+        // Display warning if mic permission is denied
+        const showMicWarning = () => $('#warn-mic').removeClass('hidden');
 
-            setTimeout(() => $('#modal').css('display', 'none'), 300);
-        });
-
-        // Close modal when clicking outside modal content
-        $(window).on('click', (event) => {
-            if ($(event.target).is('#modal')) {
-                $('#modal').addClass('opacity-0 pointer-events-none');
-                $('#modal > div').addClass('scale-95');
-
-                // remove error
-                $('#error-context').addClass('hidden').text('');
-
-                setTimeout(() => $('#modal').css('display', 'none'), 300);
-            }
-        });
+        // Display warning if camera permission is denied
+        const showCameraWarning = () => $('#warn-camera').removeClass('hidden');
     </script>
 
 
