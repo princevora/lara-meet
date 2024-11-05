@@ -278,15 +278,15 @@
             const permsIcons = document.querySelectorAll('.forbidden-icon');
             const buttons = document.querySelectorAll('.btn-circle');
             const expectedMedia = media == 0 ? 'mic' : 'camera';
-            
-            if(media == 0) {
+
+            if (media == 0) {
                 $(buttons[0]).removeClass('not-allowed btn-danger').addClass('btn-primary');
                 $(permsIcons[0]).addClass('hidden');
                 $('#warn-mic').addClass('hidden');
                 await loadSound();
             }
 
-            if(media == 1) {
+            if (media == 1) {
                 $('.video-spinner').removeClass('d-none');
                 $('.heading').addClass('hidden');
                 $('#warn-camera').addClass('hidden');
@@ -338,22 +338,25 @@
             const newValue = (Number(currentValue?.value) ^ 1).toString();
 
             // Set cookie
-            await cookieStore.set('mic-allowed', newValue);
+            await cookieStore.set(`${expectedMedia}-allowed`, newValue);
 
             // Get microphone and camera permissions
             const [micState, camState] = await getPermissions();
 
             const btns = document.querySelectorAll('.btn-circle');
 
-            if (Number(newValue) === 1 && micState === 'granted') {
-                $('.forbidden-icon').eq(0).hide();
-                btns[0].onclick = () => toggleMediaUI(); // Ensure toggleMediaUI is set for the granted state
-            } else {
-                if (micState !== 'granted') {
-                    btns[0].onclick = (event) => openModal(event, 0);
-                }
-                $('.btn-circle').eq(0).addClass('not-allowed btn-danger');
-                $('.forbidden-icon').eq(0).show();
+            if (Number(newValue) === 1 && (camState === 'granted' || micState === 'granted')) {
+                $('.forbidden-icon').eq(media).hide();
+                btns[media].onclick = () => toggleMediaUI(media);
+            }
+
+            if (camState !== 'granted' || micState !== 'granted') {
+                btns[media].onclick = (event) => openModal(event, media);
+            }
+
+            else if(Number(newValue) !== 1){
+                $('.btn-circle').eq(media).addClass('not-allowed btn-danger');
+                $('.forbidden-icon').eq(media).show();
             }
         };
 
@@ -467,16 +470,16 @@
 
             if (media == 1) {
                 videoElement.srcObject = null;
-                
+
                 $('.heading').removeClass('hidden').text('The webcam has been disabled');
             }
-            
+
             cookieStore.set(`${expectedMedia}-allowed`, 0);
             $('.forbidden-icon').eq(media).removeClass('hidden');
             $('.btn-circle').eq(media).addClass('not-allowed btn-danger').removeClass('btn-primary');
-         }
+        }
 
-         const loadSound = async () => {
+        const loadSound = async () => {
             try {
                 const media = {
                     audio: true
