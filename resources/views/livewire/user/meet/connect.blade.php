@@ -287,9 +287,6 @@
             }
 
             if (media == 1) {
-                $('.video-spinner').removeClass('d-none');
-                $('.heading').addClass('hidden');
-                $('#warn-camera').addClass('hidden');
 
                 await loadVideoSrc();
 
@@ -310,6 +307,7 @@
                 const cameraPerms = await navigator.permissions.query({
                     name: 'camera'
                 });
+
                 cameraPerms.onchange = (e) => handleMediaChange(e, 1);
 
                 return [micPerms.state, cameraPerms.state];
@@ -343,18 +341,39 @@
             // Get microphone and camera permissions
             const [micState, camState] = await getPermissions();
 
+            const expectedVar = media == 0 ? micState : camState;
+
             const btns = document.querySelectorAll('.btn-circle');
 
-            if (Number(newValue) === 1 && (camState === 'granted' || micState === 'granted')) {
+            const dispatchEvent = (event) => {
+                // Create Event.
+                const customEvent = new CustomEvent(event);
+
+                // Dispatch
+                document.dispatchEvent(customEvent);
+            }
+
+            if (Number(newValue) === 1 && expectedVar == 'granted') {
+                // Resume the audio
+
                 $('.forbidden-icon').eq(media).hide();
+                $('.btn-circle').eq(media).removeClass('not-allowed btn-danger');
+
                 btns[media].onclick = () => toggleMediaUI(media);
+
+
+                // Dispatch Event. To Resume the audio or webcame
+                dispatchEvent(`resume${expectedMedia}Track`);
             }
 
-            if (camState !== 'granted' || micState !== 'granted') {
+            // Stop media
+            if (Number(newValue) == 0 && expectedVar == 'granted') {
+                dispatchEvent(`stop${expectedMedia}Track`);
+            }
+
+            if (expectedVar !== 'granted') {
                 btns[media].onclick = (event) => openModal(event, media);
-            }
-
-            else if(Number(newValue) !== 1){
+            } else if (Number(newValue) !== 1) {
                 $('.btn-circle').eq(media).addClass('not-allowed btn-danger');
                 $('.forbidden-icon').eq(media).show();
             }
@@ -448,17 +467,47 @@
                         height
                     }
                 };
+                $('.video-spinner').removeClass('d-none');
+                $('.heading').addClass('hidden');
+
                 const stream = await toggleMedia(media);
 
-                const videoElement = document.getElementById('videoElement');
-                videoElement.srcObject = stream;
-                videoElement.play();
-
-                stream.getVideoTracks()[0].onended = () => handleMediaEnd(1, videoElement);
-                $('#videoElement').on('loadedmetadata', () => {
+                
+                if (stream !== undefined) {
                     $('.heading').addClass('hidden');
-                    $('#closeModal').click();
-                });
+                    $('#warn-camera').addClass('hidden');
+
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = stream;
+                    videoElement.play();
+
+                    const tracks = stream.getVideoTracks()[0];
+
+                    $('#videoElement').on('loadedmetadata', () => {
+                        $('#closeModal').click();
+                    });
+
+                    // Stop tracks. event handler
+                    document.addEventListener('stopcameraTrack', () => {
+                        if (tracks.readyState == 'live') {
+                            tracks.stop();
+                            
+                            // Change the icons and button
+                            if(tracks.readyState == 'ended')
+                                handleMediaEnd(1, videoElement);
+                        }
+                    })
+
+                    // Resume tracks event handler
+                    document.addEventListener('resumecameraTrack', () => {
+                        // Resume the camera
+                        loadVideoSrc();
+                    })
+
+                }
+
+                $('.video-spinner').addClass('d-none');
+
             } catch {
                 showError('Camera access not granted.');
             }
@@ -471,7 +520,7 @@
             if (media == 1) {
                 videoElement.srcObject = null;
 
-                $('.heading').removeClass('hidden').text('The webcam has been disabled');
+                $('.heading').removeClass('hidden').text('The webcam was disabled');
             }
 
             cookieStore.set(`${expectedMedia}-allowed`, 0);
@@ -484,8 +533,29 @@
                 const media = {
                     audio: true
                 };
+
                 const stream = await toggleMedia(media);
-                stream.getAudioTracks()[0].onended = () => handleMediaEnd(0);
+
+                // Handle Audio End
+                const tracks = stream.getAudioTracks()[0];
+
+                tracks.onended = () => handleMediaEnd(0);
+
+                // Stop tracks. event handler
+                document.addEventListener('stopmicTrack', () => {
+                    if (tracks.readyState == 'live') {
+                        tracks.enabled = false
+
+                    }
+                })
+
+                // Resume tracks event handler
+                document.addEventListener('resumemicTrack', () => {
+                    if (tracks.readyState == 'live') {
+                        // Resume the tracks
+                        tracks.enabled = true
+                    }
+                })
             } catch (error) {
                 console.error('Microphone access error:', error);
                 showError('Microphone access not granted.');
