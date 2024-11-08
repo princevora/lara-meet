@@ -1,6 +1,6 @@
 import MediaUIHandler from "./media-ui-handler.js";
 
-class MediaHandler extends MediaUIHandler 
+class MediaHandler
 {
 
     /**
@@ -12,10 +12,6 @@ class MediaHandler extends MediaUIHandler
      */
     handleChange(e, media = 0) {
         console.log(e);
-    }
-
-    loadSound() {
-        
     }
 }
 

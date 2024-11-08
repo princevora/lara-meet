@@ -1,12 +1,14 @@
 import MediaHandler from "../media/media-handler.js";
+import MediaUIHandler from "../media/media-ui-handler.js";
 
 class PermissionQuery {
 
     constructor() {
         this.error                  = 0;
-        this.microphonePermissions = null;
-        this.cameraPermissions     = null;
-        this.mediaHandler          = new MediaHandler();
+        this.microphonePermissions  = null;
+        this.cameraPermissions      = null;
+        this.mediaHandler           = new MediaHandler();
+        this.mediaUIHandler         = new MediaUIHandler();
     }
 
     async getPermission() {
@@ -36,8 +38,8 @@ class PermissionQuery {
     }
 
     configureGrantedHandlers() {
-        if (this.microphonePermissions.state === 'granted') this.mediaHandler.handleGrantedMedia(0);
-        if (this.cameraPermissions.state     === 'granted') this.mediaHandler.handleGrantedMedia(1);
+        if (this.microphonePermissions.state === 'granted') this.mediaUIHandler.handleGrantedMedia(0);
+        if (this.cameraPermissions.state     === 'granted') this.mediaUIHandler.handleGrantedMedia(1);
         // else $('.heading').removeClass('hidden');
     }
 }
