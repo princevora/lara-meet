@@ -148,19 +148,6 @@
                     <!-- Bottom center: Microphone and Camera buttons -->
                     <div class="media-btns flex justify-center mt-4 relative">
                         <permission-query permission-type="mic"></permission-query>
-                    </div>
-                    <div class="media-btns flex justify-center mt-4 relative">
-                        <button wire:loading.attr.disabled='true' type="button" data-type="0"
-                            onclick="openModal(event, 0)" class="btn btn-circle btn-danger mx-2 not-allowed"
-                            id="mic">
-                            <i class="fas fa-microphone-alt main-icon"></i> <!-- Microphone icon -->
-                            <span id="warn-mic"
-                                class=" position-absolute top-0 translate-middle badge rounded-pill bg-warning">
-                                !
-                                <span class="visually-hidden">unread messages</span>
-                            </span>
-                            <span class="forbidden-icon"> \ </span> <!-- Forbidden backslash -->
-                        </button>
                         <button wire:loading.attr.disabled='true' type="button" data-type="1"
                             onclick="openModal(event, 1)" id="webcame"
                             class="btn btn-circle btn-danger mx-2 not-allowed relative">

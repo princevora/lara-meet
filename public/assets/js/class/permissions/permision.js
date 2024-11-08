@@ -12,8 +12,6 @@ class PermissionElement extends HTMLElement {
         };
 
         this.attachShadow({ mode: 'open' });
-
-
     }
 
     get validType() {
@@ -87,7 +85,6 @@ class PermissionElement extends HTMLElement {
 
     connectedCallback() {
 
-        this.loadFontAwesome();
         this.addStyles();
 
         const permissionType = this.getAttribute('permission-type') || 'mic';
