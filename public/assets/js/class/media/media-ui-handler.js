@@ -28,7 +28,7 @@ class MediaUIHandler extends MediaNavigator {
 
         if (media == 0) {
             // Load sound.
-            this.loadSound();
+            (await this.loadSound()).configureSoundEventListeners();
 
             return;
         }

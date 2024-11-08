@@ -12,6 +12,7 @@
 
     <script src="https://cdn.tailwindcss.com/"></script>
     <script src="{{ asset('assets/js/meet.js') }}" type="module"></script>
+    <script src="{{ asset('assets/js/class/permissions/permision.js') }}" type="module"></script>
 </head>
 
 <body>

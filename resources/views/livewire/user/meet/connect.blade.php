@@ -45,13 +45,9 @@
 
         .not-allowed {
             background-color: rgba(255, 0, 0, 0.6);
-            /* Red background for not allowed state */
             position: relative;
-            /* Position relative for child elements */
             width: 56px;
-            /* Adjust width according to your icon size */
             height: 56px;
-            /* Adjust height according to your icon size */
         }
 
         .media-btns button {
@@ -61,32 +57,20 @@
 
         .main-icon {
             color: white;
-            /* Color for the main icon */
             font-size: 24px;
-            /* Size of the main icon */
             position: relative;
-            /* Ensure positioning for the main icon */
             z-index: 1;
-            /* Keep main icon above forbidden icon */
         }
 
         .forbidden-icon {
             color: white;
-            /* Color for the forbidden backslash */
             font-size: 36px;
-            /* Size of the forbidden backslash */
             position: absolute;
-            /* Position absolutely to overlap */
             top: 50%;
-            /* Center vertically */
             left: 50%;
-            /* Center horizontally */
             transform: translate(-50%, -50%);
-            /* Adjust to center correctly */
             z-index: 2;
-            /* Ensure the forbidden icon is on top */
             font-family: monospace;
-            /* Use a monospace font for better backslash appearance */
         }
     </style>
 @endpush
@@ -163,6 +147,9 @@
                     <video autoplay="true" id="videoElement" playsinline style="transform: scaleX(-1)"></video>
                     <!-- Bottom center: Microphone and Camera buttons -->
                     <div class="media-btns flex justify-center mt-4 relative">
+                        <permission-query permission-type="mic"></permission-query>
+                    </div>
+                    <div class="media-btns flex justify-center mt-4 relative">
                         <button wire:loading.attr.disabled='true' type="button" data-type="0"
                             onclick="openModal(event, 0)" class="btn btn-circle btn-danger mx-2 not-allowed"
                             id="mic">
@@ -179,7 +166,7 @@
                             class="btn btn-circle btn-danger mx-2 not-allowed relative">
                             <i class="fas fa-video main-icon"></i> <!-- Camera icon -->
                             <span id="warn-camera"
-                                class=" position-absolute top-0 translate-middle badge rounded-pill bg-warning">
+                                class=" position-absolute top-0  translate-middle badge rounded-pill bg-warning">
                                 !
                                 <span class="visually-hidden">unread messages</span>
                             </span>
