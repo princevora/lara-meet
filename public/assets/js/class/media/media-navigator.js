@@ -2,7 +2,7 @@ import MediaHandler from "./media-handler.js";
 
 class MediaNavigator {
     constructor () {
-        this.mediaHandler = new MediaHandler();   
+        this.mediaHandler = new MediaHandler();
     }
 
     loadSound() {
@@ -11,7 +11,6 @@ class MediaNavigator {
 
     loadVideo() {
         console.log('Loadded video');
-        
     }
 }
 
