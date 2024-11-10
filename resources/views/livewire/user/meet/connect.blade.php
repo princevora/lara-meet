@@ -146,5 +146,5 @@
         const microphoneUrl = "{{ asset('assets/images/microphone-access.svg') }}";
         const videoUrl = "{{ asset('assets/images/camera-access.svg') }}";
     </script>
-    <script src="{{ asset('assets/js/meet.js') }}" ></script>
+    <script src="{{ asset('assets/js/main.js') }}" type="module"></script>
 @endpush
