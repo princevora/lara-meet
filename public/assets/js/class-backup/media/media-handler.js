@@ -23,7 +23,7 @@ class MediaHandler {
         try {
             this.stream = await navigator.mediaDevices.getUserMedia(media);
         } catch (error) {
-            showError('Unable to access media devices.');
+            console.error('Unable to access media devices.');
         }
 
         return {
