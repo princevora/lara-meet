@@ -15,10 +15,10 @@ export const updateMediaUI = (media) => {
 
 export const handleMediaEnd = (media = 0, videoElement = null) => {
     const expectedMedia = media == 0 ? 'mic' : 'camera';
-
+    
     if (media == 1) {
         videoElement.srcObject = null;
-        $('.heading').removeClass('hidden').text('The webcam was disabled');
+        $('.heading').removeClass('hidden');
     }
 
     cookieStore.set(`${expectedMedia}-allowed`, 0);

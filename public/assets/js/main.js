@@ -1,7 +1,6 @@
-import { ignoreChange, getPermissions } from './permissions.js';
-import { preloadImage, toggleMedia, handleGrantedMedia, loadSound, loadVideoSrc } from './media.js';
-import { updateMediaUI, handleMediaEnd } from './ui.js';
-import { showError, openModal } from './modal.js';
+import { getPermissions } from './permissions.js';
+import { preloadImage, handleGrantedMedia, } from './media.js';
+import { openModal } from './modal.js';
 
 preloadImage(microphoneUrl);
 preloadImage(videoUrl);

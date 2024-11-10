@@ -1,33 +1,7 @@
-
 /* Custom Styles */
 body {
     background-color: #f5f7fa;
 }
-
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-  
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-  
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-  
-    /* Support for IE. */
-    font-feature-settings: 'liga';
-  }
 
 .meeting-card {
     position: relative;
@@ -116,7 +90,8 @@ body {
     direction: ltr;
     border-radius: inherit;
     position: relative;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.3); /* Added inner shadow */
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Added inner shadow */
 }
 
 .overlay-heading {
@@ -147,7 +122,8 @@ body {
     width: 100%;
     background-color: #e0e0e0;
     height: 10px;
-    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1); /* Added inner shadow */
+    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Added inner shadow */
 }
 
 .progress-bar {
@@ -158,5 +134,5 @@ body {
 }
 
 .bg-warning {
-    background-color: rgb(250,123,23) !important;
+    background-color: rgb(250, 123, 23) !important;
 }

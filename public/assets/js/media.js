@@ -1,6 +1,6 @@
 import { ignoreChange, getPermissions } from './permissions.js';
-import { updateMediaUI, handleMediaEnd } from './ui.js';
-import { showError } from './modal.js';
+import { handleMediaEnd, updateMediaUI } from './ui.js';
+import { showError, openModal } from './modal.js';
 
 export const preloadImage = (url) => {
     $('<link>', {
@@ -62,8 +62,8 @@ export const loadSound = () => {
             reject(false);
         }
     })
-    .then(() => updateMediaUI(0))
-    .catch(() => showError('Microphone access not granted'));
+        .then(() => updateMediaUI(0))
+        .catch(() => showError('Microphone access not granted'));
 };
 
 export const loadVideoSrc = (width = 900, height = 450) => {
@@ -87,12 +87,16 @@ export const loadVideoSrc = (width = 900, height = 450) => {
                 videoElement.play();
 
                 const tracks = stream.getVideoTracks()[0];
-                tracks.onended = () => handleMediaEnd(1, videoElement);
+                tracks.onended = () => handleMediaEnd(1, videoElement)
 
                 document.addEventListener('stopcameraTrack', () => {
                     if (tracks.readyState == 'live') {
                         tracks.stop();
                         videoElement.srcObject = null;
+
+                        // Change the icons and button
+                        if (tracks.readyState == 'ended')
+                            handleMediaEnd(1, videoElement);
                     }
                 });
 
@@ -108,12 +112,12 @@ export const loadVideoSrc = (width = 900, height = 450) => {
             reject(false);
         }
     })
-    .then(() => updateMediaUI(1))
-    .catch(() => {
-        $('.heading').removeClass('hidden');
-        showError('Camera Access Not Granted');
-    })
-    .then(() => $('.video-spinner').addClass('d-none'));
+        .then(() => updateMediaUI(1))
+        .catch(() => {
+            $('.heading').removeClass('hidden');
+            showError('Camera Access Not Granted');
+        })
+        .then(() => $('.video-spinner').addClass('d-none'));
 };
 
 export const requestMicrophone = async () => {
@@ -163,5 +167,59 @@ export const handleMediaChange = (e, media = 0) => {
 
     if ($('#modal').css('display') !== 'none' && $('#modal').css('opacity') > 0) {
         $('#modal').hide();
+    }
+};
+
+export const toggleMediaUI = async (media = 0) => {
+    const expectedMedia = media == 0 ? 'mic' : 'camera';
+
+    // get current cookie
+    const currentValue = await cookieStore.get(`${expectedMedia}-allowed`);
+
+    // Change to string
+    const newValue = (Number(currentValue?.value) ^ 1).toString();
+
+    // Set cookie
+    await cookieStore.set(`${expectedMedia}-allowed`, newValue);
+
+    // Get microphone and camera permissions
+    const [micState, camState] = await getPermissions();
+
+    const expectedVar = media == 0 ? micState : camState;
+
+    const btns = document.querySelectorAll('.btn-circle');
+
+    const dispatchEvent = (event) => {
+        // Create Event.
+        const customEvent = new CustomEvent(event);
+
+        // Dispatch
+        document.dispatchEvent(customEvent);
+    }
+
+    if (Number(newValue) === 1 && expectedVar == 'granted') {
+        // Resume the audio
+
+        $('.forbidden').eq(media).hide();
+        $('.btn-circle').eq(media).removeClass('not-allowed btn-danger').addClass('btn-outline-light');
+        $('.main-icon').eq(media).show();
+
+        btns[media].onclick = () => toggleMediaUI(media);
+
+        // Dispatch Event to Resume the audio or webcam
+        dispatchEvent(`resume${expectedMedia}Track`);
+    }
+
+    // Stop media
+    if (Number(newValue) == 0 && expectedVar == 'granted') {
+        dispatchEvent(`stop${expectedMedia}Track`);
+    }
+
+    if (expectedVar !== 'granted') {
+        btns[media].onclick = (event) => openModal(event, media);
+    } else if (Number(newValue) !== 1) {
+        $('.btn-circle').eq(media).addClass('not-allowed btn-danger').removeClass('btn-outline-light');
+        $('.forbidden').eq(media).show();
+        $('.main-icon').eq(media).hide();
     }
 };
