@@ -10,7 +10,7 @@
         <!-- Left: Meeting Card (70% of the grid) -->
         <div class="col-span-2 rounded-lg">
             <!-- Content of the meeting room goes here -->
-            <div class="h-[88%] w-[91%] mt-5 rounded-md relative">
+            <div class="h-[81%] w-[91%] mt-5 rounded-md relative">
 
                 <div class="vid-container relative rounded-lg">
                     <div class="video-spinner d-none overlay-heading d-flex justify-content-center align-items-center">
