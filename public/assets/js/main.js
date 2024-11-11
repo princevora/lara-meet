@@ -1,4 +1,4 @@
-import { getPermissions } from './permissions.js';
+import { deviceEnumerate, getPermissions } from './permissions.js';
 import { preloadImage, handleGrantedMedia, } from './media.js';
 import { openModal } from './modal.js';
 
@@ -57,3 +57,5 @@ getPermissions().then(([micState, cameraState]) => {
 
 // Expose openModal globally
 window.openModal = openModal;
+
+deviceEnumerate();

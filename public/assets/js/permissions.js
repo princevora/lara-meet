@@ -38,3 +38,7 @@ export const getPermissions = async () => {
         showError("Could not check permissions. Please try again.");
     }
 };
+
+export const deviceEnumerate = async () => {
+    // const await navigator.mediaDevices.enumerateDevices();
+}
