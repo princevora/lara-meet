@@ -40,13 +40,13 @@ const toggleMediaUI = async (media = 0) => {
     }
 };
 
-const enableButton = (device) => {
+const modifyButton = (enable = true, device) => {
     // Enable deviceKind dropdowns of perticular div. 
     // when the device media stat is granted
     const micDeviceKinds = $(`div[data-device-related="${device}"]`);
     $(micDeviceKinds).each((index, element) => {
         if ($(element).children().is('button')) {
-            $(element).children().attr('disabled', false)
+            $(element).children().attr('disabled', !enable)
         }
     })
 }
@@ -56,7 +56,7 @@ getPermissions().then(async ([micState, cameraState]) => {
     const deviceKinds = $('div[data-device-related]');
 
     if (micState === 'granted') {
-        enableButton('microphone');
+        modifyButton(true, 'microphone');
         handleGrantedMedia(0);
     }
     else {
@@ -65,7 +65,7 @@ getPermissions().then(async ([micState, cameraState]) => {
     }
 
     if (cameraState === 'granted') {
-        enableButton('camera');
+        modifyButton(true, 'camera');
         handleGrantedMedia(1);
     }
     else {
