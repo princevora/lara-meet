@@ -1,4 +1,4 @@
-import { ignoreChange, getPermissions } from './permissions.js';
+import { ignoreChange, getPermissions, devicePerms, deviceEnumerate } from './permissions.js';
 import { handleMediaEnd, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 
@@ -42,6 +42,12 @@ export const loadSound = () => {
 
             // Handle Audio End
             const tracks = stream.getAudioTracks()[0];
+
+            if (devicePerms.mic.hasPerms) {
+                devicePerms.mic.tracks = tracks;
+                deviceEnumerate(0);
+            }
+
             tracks.onended = () => handleMediaEnd(0);
 
             // Stop and Resume tracks event handler
@@ -82,12 +88,19 @@ export const loadVideoSrc = (width = 900, height = 450) => {
             const stream = await toggleMedia(media);
 
             if (stream !== undefined) {
+
+                const tracks = stream.getVideoTracks()[0];
+                tracks.onended = () => handleMediaEnd(1, videoElement)
+
+                if (devicePerms.camera.hasPerms) {
+                    devicePerms.camera.tracks = tracks;
+                    deviceEnumerate(1);
+                }
+
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
                 videoElement.play();
 
-                const tracks = stream.getVideoTracks()[0];
-                tracks.onended = () => handleMediaEnd(1, videoElement)
 
                 document.addEventListener('stopcameraTrack', () => {
                     if (tracks.readyState == 'live') {
@@ -151,6 +164,9 @@ export const requestCamera = async () => {
 };
 
 export const handleMediaChange = (e, media = 0) => {
+    ignoreChange.mic = false;
+    ignoreChange.camera = false;
+
     if (e.currentTarget.state) {
         const state = e.currentTarget.state;
         const btns = document.querySelectorAll('.btn-circle');

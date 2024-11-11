@@ -1,4 +1,4 @@
-import { deviceEnumerate, getPermissions } from './permissions.js';
+import { deviceEnumerate, devicePerms, getPermissions, listMediaDevicesUI } from './permissions.js';
 import { preloadImage, handleGrantedMedia, } from './media.js';
 import { openModal } from './modal.js';
 
@@ -40,8 +40,25 @@ const toggleMediaUI = async (media = 0) => {
     }
 };
 
-getPermissions().then(([micState, cameraState]) => {
-    if (micState === 'granted') handleGrantedMedia(0);
+const enableButton = () => {
+    // Enable deviceKind dropdowns of perticular div. 
+    // when the device media stat is granted
+    const micDeviceKinds = $("div[data-device-related='microphone']");
+    $(micDeviceKinds).each((index, element) => {
+        if ($(element).children().is('button')) {
+            $(element).children().attr('disabled', false)
+        }
+    })
+}
+
+getPermissions().then(async ([micState, cameraState]) => {
+    await navigator.mediaDevices.enumerateDevices().then(devices => listMediaDevicesUI(devices, 2));
+    const deviceKinds = $('div[data-device-related]');
+
+    if (micState === 'granted') {
+
+        handleGrantedMedia(0);
+    }
     else {
         $('.main-icon').eq(0).addClass('hidden');
         $('.forbidden').eq(0).removeClass('hidden');
@@ -57,5 +74,3 @@ getPermissions().then(([micState, cameraState]) => {
 
 // Expose openModal globally
 window.openModal = openModal;
-
-deviceEnumerate();
