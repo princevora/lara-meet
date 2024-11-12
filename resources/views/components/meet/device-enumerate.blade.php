@@ -51,7 +51,7 @@
 
             <!-- Speakers Options (positioned to open on top) -->
             <div id="speakersDropdown"
-                class="hidden z-10 w-56 mb-2 bg-white border border-gray-200 rounded-md shadow-lg top-full"
+                class="hidden z-10 w-w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-lg top-full"
                 role="menu" aria-labelledby="speakersDropdownButton">
                 <div id="audiooutput-option-container" class="py-1" role="none">
                 </div>
@@ -76,7 +76,7 @@
 
             <!-- Speakers Options (positioned to open on top) -->
             <div id="cameraDropdown"
-                class="hidden z-10 w-56 mb-2 bg-white border border-gray-200 rounded-md shadow-lg top-full"
+                class="hidden z-10 w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-lg top-full"
                 role="menu" aria-labelledby="cameraDropDownButton">
                 <div class="py-1" id="videoinput-option-container" role="none">
                 </div>
