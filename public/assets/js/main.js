@@ -40,7 +40,7 @@ const toggleMediaUI = async (media = 0) => {
     }
 };
 
-const modifyButton = (enable = true, device) => {
+export const modifyButton = (enable = true, device) => {
     // Enable deviceKind dropdowns of perticular div. 
     // when the device media stat is granted
     const micDeviceKinds = $(`div[data-device-related="${device}"]`);
@@ -53,7 +53,6 @@ const modifyButton = (enable = true, device) => {
 
 getPermissions().then(async ([micState, cameraState]) => {
     await navigator.mediaDevices.enumerateDevices().then(devices => listMediaDevicesUI(devices, 2));
-    const deviceKinds = $('div[data-device-related]');
 
     if (micState === 'granted') {
         modifyButton(true, 'microphone');

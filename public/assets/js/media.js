@@ -1,6 +1,7 @@
-import { ignoreChange, getPermissions, devicePerms, deviceEnumerate } from './permissions.js';
+import { ignoreChange, getPermissions, devicePerms, deviceEnumerate, loadedDevices } from './permissions.js';
 import { handleMediaEnd, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
+import { modifyButton } from './main.js';
 
 export const preloadImage = (url) => {
     $('<link>', {
@@ -45,7 +46,9 @@ export const loadSound = () => {
 
             if (devicePerms.mic.hasPerms) {
                 devicePerms.mic.tracks = tracks;
-                deviceEnumerate(0);
+                if (!loadedDevices.mic) {
+                    deviceEnumerate(0);
+                }
             }
 
             tracks.onended = () => handleMediaEnd(0);
@@ -94,7 +97,9 @@ export const loadVideoSrc = (width = 900, height = 450) => {
 
                 if (devicePerms.camera.hasPerms) {
                     devicePerms.camera.tracks = tracks;
-                    deviceEnumerate(1);
+                    if (!loadedDevices.camera) {
+                        deviceEnumerate(1);
+                    }
                 }
 
                 const videoElement = document.getElementById('videoElement');
@@ -171,11 +176,15 @@ export const handleMediaChange = (e, media = 0) => {
         const state = e.currentTarget.state;
         const btns = document.querySelectorAll('.btn-circle');
         const expectedMedia = media == 0 ? 'mic' : 'camera';
+        const expectedDevice = media == 0 ? 'microphone' : 'camera';
 
         if (state === 'granted') {
             handleGrantedMedia(media);
+            modifyButton(true, expectedDevice)
+            
             btns[media].onclick = () => toggleMediaUI(media);
         } else if (state === 'denied' || state === 'prompt') {
+            modifyButton(false, expectedDevice)
             $(`#warn-${expectedMedia}`).removeClass('hidden');
             btns[media].onclick = (event) => openModal(event, media);
         }

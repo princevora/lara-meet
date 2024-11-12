@@ -1,6 +1,7 @@
 import { handleGrantedMedia, toggleMedia, loadSound, loadVideoSrc } from './media.js';
 import { getPermissions } from './permissions.js';
 import { openModal } from './modal.js';
+import { modifyButton } from './main.js';
 
 export const updateMediaUI = (media) => {
     const permsIcons = document.querySelectorAll('.forbidden');
@@ -15,7 +16,8 @@ export const updateMediaUI = (media) => {
 
 export const handleMediaEnd = (media = 0, videoElement = null) => {
     const expectedMedia = media == 0 ? 'mic' : 'camera';
-    
+    const expectedDevice = media == 0 ? 'microphone' : 'camera';
+
     if (media == 1) {
         videoElement.srcObject = null;
         $('.heading').removeClass('hidden');
@@ -30,4 +32,7 @@ export const handleMediaEnd = (media = 0, videoElement = null) => {
     $(permsIcons[media]).removeClass('hidden');
     $('.main-icon').eq(media).addClass('hidden');
     $(`#warn-${expectedMedia}`).removeClass('hidden');
+
+    // Disabled media change dropdown
+    modifyButton(false, expectedDevice);
 };

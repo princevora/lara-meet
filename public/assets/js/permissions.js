@@ -16,6 +16,12 @@ export const devicePerms = {
     },
 };
 
+// Will be used for enumerate device.
+export const loadedDevices = {
+    mic: false, 
+    camera: false
+}
+
 let micAllowed = 0;
 let cameraAllowed = 0;
 
@@ -61,7 +67,7 @@ export const getPermissions = async () => {
 export const deviceEnumerate = async (media = 0) => {
     const devices = await navigator.mediaDevices.enumerateDevices();
 
-    if (Object.entries(devicePerms)[media][1]) 
+    if (Object.entries(devicePerms)[media][1])
         listMediaDevicesUI(devices, media)
 }
 
@@ -72,27 +78,28 @@ export const deviceEnumerate = async (media = 0) => {
  */
 export const listMediaDevicesUI = (devices, media = 0) => {
     let expectedDeviceKind = null;
-    
+
     // Audio input
-    if(media == 0) expectedDeviceKind = 'audioinput';
-    
+    if (media == 0) expectedDeviceKind = 'audioinput';
+
     // Video input
-    if(media == 1) expectedDeviceKind = 'videoinput';
-    
+    if (media == 1) expectedDeviceKind = 'videoinput';
+
     // Audio Output
-    else if(media == 2) {
+    else if (media == 2) {
         expectedDeviceKind = 'audiooutput'
     }
-    
+
     const deviceContainer = document.getElementById(`${expectedDeviceKind}-option-container`);
 
     let streamingDevice = {
         deviceId: 'default'
     };
 
-    if(media !== 2) {
+    if (media !== 2) {
         streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
-    }
+    };
+
 
     devices.forEach((device) => {
         let optionClass = 'grid grid-cols-[15%_auto] items-center gap-3 odd:bg-white even:bg-gray-200 block px-4 py-2 text-sm text-gray-700 odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
@@ -134,4 +141,7 @@ export const listMediaDevicesUI = (devices, media = 0) => {
             deviceContainer.appendChild(option);
         }
     })
+
+    if(media == 0) loadedDevices.mic = true;
+    if(media == 1) loadedDevices.camera = true;
 }
