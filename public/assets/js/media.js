@@ -75,6 +75,17 @@ export const loadSound = () => {
         .catch(() => showError('Microphone access not granted'));
 };
 
+/**
+ * 
+ * @param {Event} e 
+ * @param {string} deviceId 
+ * @param {string} deviceKind 
+ */
+export const changeAudioInput = (e, deviceId, deviceKind) =>{
+    e.preventDefault();
+    
+}
+
 export const loadVideoSrc = (width = 900, height = 450) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -181,7 +192,7 @@ export const handleMediaChange = (e, media = 0) => {
         if (state === 'granted') {
             handleGrantedMedia(media);
             modifyButton(true, expectedDevice)
-            
+
             btns[media].onclick = () => toggleMediaUI(media);
         } else if (state === 'denied' || state === 'prompt') {
             modifyButton(false, expectedDevice)

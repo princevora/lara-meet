@@ -1,4 +1,4 @@
-import { handleMediaChange } from './media.js';
+import { changeAudioInput, handleMediaChange } from './media.js';
 
 export const ignoreChange = {
     mic: false,
@@ -108,11 +108,8 @@ export const listMediaDevicesUI = (devices, media = 0) => {
             // Get audio device info from streaming (running) device.
 
             const option = document.createElement('a');
-            option.href = "#";
 
             if (streamingDevice.deviceId == device.deviceId) {
-                optionClass += '';
-
                 let firstChildSpan = document.createElement('span');
                 firstChildSpan.className = 'material-icons-outlined text-blue-500';
                 firstChildSpan.textContent = 'check';
@@ -132,12 +129,12 @@ export const listMediaDevicesUI = (devices, media = 0) => {
                 let secondChildSpan = document.createElement('span');
                 secondChildSpan.textContent = device.label;
 
+                optionClass += 'cursor-pointer';
+                option.onclick = (e) => changeAudioInput(e, device.deviceId, expectedDeviceKind);
                 option.append(firstChildSpan, secondChildSpan);
             }
 
-
             option.className = optionClass;
-            option.setAttribute('data-device-id', device.deviceId);
             deviceContainer.appendChild(option);
         }
     })
