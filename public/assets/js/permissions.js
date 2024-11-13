@@ -113,7 +113,7 @@ export const listMediaDevicesUI = (devices, media = 0) => {
             // Get audio device info from streaming (running) device.
 
             const option = document.createElement('a');
-            option.style.gridTemplateColumns = '15% 85%';
+            option.style.gridTemplateColumns = '10% 90%';
             
             let firstChildSpan = document.createElement('span');
             firstChildSpan.className = 'material-icons-outlined default-checked';
