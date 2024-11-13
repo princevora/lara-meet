@@ -4,7 +4,7 @@
         <div class="relative inline-block text-left w-full sm:w-auto" data-device-related='microphone'>
             <button disabled data-tooltip-placement="top" id="microphoneDropdownButton"
                 data-dropdown-toggle="microphoneDropdown"
-                class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
+                class="dropdown-device flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
                 <span class="mr-2 inline-flex gap-1">
                     <span class="material-icons-outlined text-[18px]">mic</span>
                     <span id="info-mic">
@@ -37,7 +37,7 @@
         <!-- Speakers Dropdown -->
         <div class="relative inline-block text-left w-full sm:w-auto" data-device-related='microphone'>
             <button disabled id="speakersDropdownButton" data-dropdown-toggle="speakersDropdown"
-                class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
+                class="dropdown-device flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
                 <span class="mr-2 inline-flex gap-1">
                     <span class="material-icons-outlined text-[18px]">volume_up</span>
                     <span id="info-speaker">
@@ -62,7 +62,7 @@
         <!-- Camera Dropdown -->
         <div class="relative inline-block text-left w-full sm:w-auto" data-device-related='camera'>
             <button disabled id="cameraDropDownButton" data-dropdown-toggle="cameraDropdown"
-                class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
+                class="dropdown-device flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
                 <span class="mr-2 inline-flex gap-1">
                     <span class="material-icons-outlined text-[18px]">videocam</span>
                     <span id="info-speaker">
@@ -92,9 +92,8 @@
         $(document).ready(function() {
             if ('Tooltip' in window) {
                 $('div[data-device-related]').on('mouseover', (e) => {
-                    // console.log('HEE');
 
-                    if (e.target?.closest('button')?.disabled) {
+                    if (e.target?.closest('button.dropdown-device')?.disabled) {
                         const tooltipElement = document.getElementById('tooltip-top');
                         const buttonElement = e.target.closest('button');
 

@@ -16,9 +16,15 @@ export const devicePerms = {
     },
 };
 
+export const defaultDevice = {
+    mic: null,
+    camera: null,
+    spaker: null
+}
+
 // Will be used for enumerate device.
 export const loadedDevices = {
-    mic: false, 
+    mic: false,
     camera: false
 }
 
@@ -77,25 +83,12 @@ export const deviceEnumerate = async (media = 0) => {
  * @param {number} medaia 
  */
 export const listMediaDevicesUI = (devices, media = 0) => {
-    console.log(devices ,media, 'HEERER');
 
-
-    let expectedDeviceKind = null;
-
-    // Audio input
-    if (media == 0) expectedDeviceKind = 'audioinput';
-
-    // Video input
-    if (media == 1) expectedDeviceKind = 'videoinput';
-
-    // Audio Output
-    else if (media == 2) {
-        expectedDeviceKind = 'audiooutput'
-    }
+    let expectedDeviceKind = getExpectedDeviceKind(media);
 
     const deviceContainer = document.getElementById(`${expectedDeviceKind}-option-container`);
     let expectedDevice = 'speaker';
-        expectedDevice = media == 0 ? 'mic' : 'camera';  
+    expectedDevice = media == 0 ? 'mic' : 'camera';
 
     let streamingDevice = {
         deviceId: 'default'
@@ -107,43 +100,44 @@ export const listMediaDevicesUI = (devices, media = 0) => {
 
 
     devices.forEach((device) => {
-        let optionClass = 'input-change grid grid-cols-[15%] items-center gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
+        let optionClass = 'input-change grid grid-cols-[15%] items-center text-start gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
 
         if (device.kind == expectedDeviceKind) {
             // Get audio device info from streaming (running) device.
 
-            const option = document.createElement('a');
+            const option = document.createElement('button');
             option.style.gridTemplateColumns = '10% 90%';
-            
+
             let firstChildSpan = document.createElement('span');
             firstChildSpan.className = 'material-icons-outlined default-checked';
-            
+
             let secondChildSpan = document.createElement('span');
             secondChildSpan.className = 'text-md';
-            
+
+            secondChildSpan.textContent = device.label;
+
             if (streamingDevice.deviceId == device.deviceId) {
+                defaultDevice[expectedDevice] = device.deviceId;
+
                 optionClass += 'text-blue-500';
 
                 firstChildSpan.textContent = 'check';
-                
-                secondChildSpan.textContent = device.label;
 
                 let childSmallElement = document.createElement('small');
                 childSmallElement.textContent = 'System Default';
                 childSmallElement.className = 'block';
 
+                option.disabled = true;
+
                 secondChildSpan.appendChild(childSmallElement);
             } else {
-                secondChildSpan.textContent = device.label;
 
-                optionClass += 'cursor-pointer';
-                
                 // Change in future
-                option.onclick = (e) => changeAudioInput(e, device.deviceId, expectedDeviceKind);
+                option.onclick = (e) => changeAudioInput(e, device.deviceId, expectedDeviceKind, media);
             }
-            
+
             option.append(firstChildSpan, secondChildSpan);
-            
+
             option.className = optionClass;
             option.setAttribute('data-device-id', device.deviceId);
             option.setAttribute('data-type', expectedDevice);
@@ -151,6 +145,29 @@ export const listMediaDevicesUI = (devices, media = 0) => {
         }
     })
 
-    if(media == 0) loadedDevices.mic = true;
-    if(media == 1) loadedDevices.camera = true;
+    if (media == 0) loadedDevices.mic = true;
+    if (media == 1) loadedDevices.camera = true;
+}
+
+export const getExpectedDeviceKind = (media) => {
+    // Audio input
+    if (media == 0) return 'audioinput';
+
+    // Video input
+    else if (media == 1) return 'videoinput';
+
+    // Audio Output
+    else if (media == 2) return 'audiooutput'
+}
+
+export const getExpectedDevice = (media) => {
+    // Audio input
+    if (media == 0) return 'mic';
+    
+    // Audio Output
+    else if (media == 2) return 'speaker';
+    
+    // Video input
+    else if (media == 1) return 'camera';
+    
 }

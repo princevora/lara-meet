@@ -1,4 +1,4 @@
-import { ignoreChange, getPermissions, devicePerms, deviceEnumerate, loadedDevices } from './permissions.js';
+import { ignoreChange, getPermissions, devicePerms, deviceEnumerate, loadedDevices, defaultDevice, getExpectedDeviceKind, getExpectedDevice } from './permissions.js';
 import { handleMediaEnd, ignores, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
@@ -125,41 +125,54 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
  * @param {string} deviceId 
  * @param {string} deviceKind 
  */
-export const changeAudioInput = (e, deviceId, deviceKind) => {
+export const changeAudioInput = (e, deviceId, deviceKind, type) => {
     e.preventDefault();
+    const expectedDeviceKind = getExpectedDeviceKind(type);
+    const expectedDevice = getExpectedDevice(type);
 
-    if (deviceConfig.mic.stream) {
+    if (deviceConfig[expectedDevice].stream) {
         // Stop the previous track.
-        dispatchEvent('disablemicTrack');
+        dispatchEvent(`disable${expectedDevice}Track`);
 
         // reload The Audio Input
         loadSound(true, deviceId);
 
+        $(`*[data-type=${expectedDevice}]`).attr('disabled', false);
+
+        const defaultOption = document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${defaultDevice.mic}"]`);
+        if (!defaultOption.onclick) {
+            defaultOption.onclick = (e) => changeAudioInput(e, defaultDevice.mic, deviceKind, type);
+        }
+
         // Set the text empty of the material icon
-        $('*[data-type="mic"] .default-checked').each((index, element) => {
+        $(`*[data-type=${expectedDevice}] .default-checked`).each((index, element) => {
             element.textContent = null;
         })
+
+        console.log(document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${deviceId}"]`), deviceId);
+
 
         // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
 
         // Remove blue color
-        $('*[data-type="mic"].text-blue-500').each((index, element) => {
+        $(`*[data-type=${expectedDevice}].text-blue-500`).each((index, element) => {
             $(element).removeClass('text-blue-500');
         })
 
         // Find first span to use material icon (check icon)
-        $(`*[data-type="mic"][data-device-id="${deviceId}"] span:first-child`).text('check');
+        $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"] span:first-child`)
+            .text('check')
+            .each(function () {
+                if (!$(this).hasClass('default-checked')) {
+                    $(this).addClass('default-checked');
+                }
+            });
+
 
         // find perticula option with same device id and add blue color
-        $(`*[data-type="mic"][data-device-id="${deviceId}"]`).addClass('text-blue-500')
-
-        // Find the element with the same deviceId 
-        // console.log();
-        // $('*[data-type="mic"] .default-checked').text(null)
-
-        // Set the small text to null
-        // $('.small-helper').text(null)
-
+        const selectedOption = $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"]`);
+        $(selectedOption).attr('disabled', true);
+        $(selectedOption).addClass('text-blue-500');
     }
 }
 
@@ -204,7 +217,9 @@ export const loadVideoSrc = (width = 900, height = 450) => {
 
                 document.addEventListener('stopcameraTrack', () => {
                     if (tracks.readyState == 'live') {
-                        tracks.stop();
+                        // Disable previous track
+                        disabledTrack();
+
                         videoElement.srcObject = null;
 
                         // Change the icons and button
@@ -216,6 +231,15 @@ export const loadVideoSrc = (width = 900, height = 450) => {
                             // Reset backs the state
                             ignores.camera.warn = false;
                         }
+                    }
+                });
+
+                const disabledTrack = () => {
+                    return tracks.stop();
+                }
+                document.addEventListener('disablecameraTrack', () => {
+                    if (tracks.readyState == 'live') {
+                        disabledTrack();
                     }
                 });
 
