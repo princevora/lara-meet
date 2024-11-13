@@ -9,6 +9,12 @@ export const deviceConfig = {
     speaker: { stream: null },
 }
 
+export const loadEnumerateDevice = {
+    mic: false,
+    speaker: false,
+    camera: false
+}
+
 export const preloadImage = (url) => {
     $('<link>', {
         rel: 'preload',
@@ -53,6 +59,8 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
             }
 
             const stream = await toggleMedia(media);
+            devicePerms.mic.hasPerms = true;
+
             // const s = document.getElementById('constau');
             // s.srcObject = stream
 
@@ -61,10 +69,19 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
             // Handle Audio End
             const tracks = stream.getAudioTracks()[0];
 
-            if (devicePerms.mic.hasPerms) {
+            if (devicePerms.mic.hasPerms && !loadEnumerateDevice.mic) {
                 devicePerms.mic.tracks = tracks;
                 if (!loadedDevices.mic) {
                     deviceEnumerate(0);
+                    
+                    if(!loadEnumerateDevice.speaker) {
+                        // Load speaker Device.
+                        deviceEnumerate(2);
+                    }
+
+                    // Dont load devices again
+                    loadEnumerateDevice.mic = true;
+                    loadEnumerateDevice.speaker = true;
                 }
             }
 

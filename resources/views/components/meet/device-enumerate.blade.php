@@ -18,15 +18,16 @@
             </button>
 
 
-            <!-- Microphone Options  -->
             <div id="microphoneDropdown"
                 class="hidden z-10 w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-xl top-full"
                 role="menu" aria-labelledby="microphoneDropdownButton">
-                <div id="audioinput-option-container" class="py-1" role="none">
+                <div id="audioinput-option-container" class="" role="none">
+                    <!-- Dynamic options will be appended here -->
                 </div>
             </div>
+
         </div>
-        
+
         <div id="tooltip-top" role="tooltip"
             class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
             Permission Needed
@@ -88,15 +89,15 @@
 @push('scripts')
     {{-- Show tooltip when a button is disabled --}}
     <script>
-        $(document).ready(function (){
-            if('Tooltip' in window) {
+        $(document).ready(function() {
+            if ('Tooltip' in window) {
                 $('div[data-device-related]').on('mouseover', (e) => {
                     // console.log('HEE');
-                    
+
                     if (e.target?.closest('button')?.disabled) {
                         const tooltipElement = document.getElementById('tooltip-top');
                         const buttonElement = e.target.closest('button');
-        
+
                         const tooltip = new Tooltip(tooltipElement, buttonElement);
                         tooltip.show();
                     }

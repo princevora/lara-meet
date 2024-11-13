@@ -1,5 +1,5 @@
 import { deviceEnumerate, devicePerms, getPermissions, listMediaDevicesUI } from './permissions.js';
-import { preloadImage, handleGrantedMedia, } from './media.js';
+import { preloadImage, handleGrantedMedia, loadEnumerateDevice, } from './media.js';
 import { openModal } from './modal.js';
 
 preloadImage(microphoneUrl);
@@ -52,13 +52,9 @@ export const modifyButton = (enable = true, device) => {
 }
 
 getPermissions().then(async ([micState, cameraState]) => {
-    await navigator.
-        mediaDevices.
-        enumerateDevices().
-        then(devices => listMediaDevicesUI(devices, 2));
-
     if (micState === 'granted') {
         modifyButton(true, 'microphone');
+        enumerateSpeakerDevice();
         handleGrantedMedia(0);
     }
     else {
@@ -76,6 +72,16 @@ getPermissions().then(async ([micState, cameraState]) => {
         $('.heading').removeClass('hidden');
     }
 });
+
+const enumerateSpeakerDevice = async () => {
+    await navigator.
+        mediaDevices.
+        enumerateDevices().
+        then((devices) => {
+            listMediaDevicesUI(devices, 2);
+            loadEnumerateDevice.speaker = true;
+        });
+}
 
 // Expose openModal globally
 window.openModal = openModal;

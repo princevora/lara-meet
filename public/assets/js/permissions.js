@@ -67,7 +67,7 @@ export const getPermissions = async () => {
 export const deviceEnumerate = async (media = 0) => {
     const devices = await navigator.mediaDevices.enumerateDevices();
 
-    if (Object.entries(devicePerms)[media][1])
+    if (media == 2 || Object.entries(devicePerms)[media][1])
         listMediaDevicesUI(devices, media)
 }
 
@@ -77,6 +77,9 @@ export const deviceEnumerate = async (media = 0) => {
  * @param {number} medaia 
  */
 export const listMediaDevicesUI = (devices, media = 0) => {
+    console.log(devices ,media, 'HEERER');
+
+
     let expectedDeviceKind = null;
 
     // Audio input
@@ -104,12 +107,13 @@ export const listMediaDevicesUI = (devices, media = 0) => {
 
 
     devices.forEach((device) => {
-        let optionClass = 'input-change flex items-center gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
+        let optionClass = 'input-change grid grid-cols-[15%] items-center gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
 
         if (device.kind == expectedDeviceKind) {
             // Get audio device info from streaming (running) device.
 
-            const option = document.createElement('button');
+            const option = document.createElement('a');
+            option.style.gridTemplateColumns = '15% 85%';
             
             let firstChildSpan = document.createElement('span');
             firstChildSpan.className = 'material-icons-outlined default-checked';
