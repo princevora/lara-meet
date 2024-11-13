@@ -3,6 +3,11 @@ import { getPermissions } from './permissions.js';
 import { openModal } from './modal.js';
 import { modifyButton } from './main.js';
 
+export const ignores = {
+    mic: {warn: false},
+    camera: {warn: false}
+};
+
 export const updateMediaUI = (media) => {
     const permsIcons = document.querySelectorAll('.forbidden');
     const buttons = document.querySelectorAll('.btn-circle');
@@ -30,8 +35,12 @@ export const handleMediaEnd = (media = 0, videoElement = null) => {
 
     $(buttons[media]).addClass('not-allowed btn-danger').removeClass('btn-outline-light');
     $(permsIcons[media]).removeClass('hidden');
+    
     $('.main-icon').eq(media).addClass('hidden');
-    $(`#warn-${expectedMedia}`).removeClass('hidden');
+    
+    if(!ignores.camera.warn) {
+        $(`#warn-${expectedMedia}`).removeClass('hidden');
+    }
 
     // Disabled media change dropdown
     modifyButton(false, expectedDevice);

@@ -1,5 +1,5 @@
 import { ignoreChange, getPermissions, devicePerms, deviceEnumerate, loadedDevices } from './permissions.js';
-import { handleMediaEnd, updateMediaUI } from './ui.js';
+import { handleMediaEnd, ignores, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
 
@@ -48,6 +48,9 @@ export const handleGrantedMedia = async (media = 0) => {
 };
 
 export const loadSound = (changeTrack = false, deviceId = null) => {
+    // Disable The main toggle button untill the sound is loaded or refused to load.
+    $('.btn-circle').eq(0).attr('disabled', true);
+
     return new Promise(async (resolve, reject) => {
         try {
             const media = { audio: true };
@@ -73,8 +76,8 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
                 devicePerms.mic.tracks = tracks;
                 if (!loadedDevices.mic) {
                     deviceEnumerate(0);
-                    
-                    if(!loadEnumerateDevice.speaker) {
+
+                    if (!loadEnumerateDevice.speaker) {
                         // Load speaker Device.
                         deviceEnumerate(2);
                     }
@@ -112,7 +115,8 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
         }
     })
         .then(() => updateMediaUI(0))
-        .catch(() => showError('Microphone access not granted'));
+        .catch(() => showError('Microphone access not granted'))
+        .finally(() => $('.btn-circle').eq(0).attr('disabled', false));
 };
 
 /**
@@ -135,31 +139,33 @@ export const changeAudioInput = (e, deviceId, deviceKind) => {
         $('*[data-type="mic"] .default-checked').each((index, element) => {
             element.textContent = null;
         })
-        
+
         // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
-        
+
         // Remove blue color
         $('*[data-type="mic"].text-blue-500').each((index, element) => {
             $(element).removeClass('text-blue-500');
         })
 
         // Find first span to use material icon (check icon)
-        $(`*[data-type="mic"][data-device-id="${deviceId}"] span:first-child`).text('check');        
+        $(`*[data-type="mic"][data-device-id="${deviceId}"] span:first-child`).text('check');
 
         // find perticula option with same device id and add blue color
         $(`*[data-type="mic"][data-device-id="${deviceId}"]`).addClass('text-blue-500')
-        
+
         // Find the element with the same deviceId 
         // console.log();
         // $('*[data-type="mic"] .default-checked').text(null)
-        
+
         // Set the small text to null
         // $('.small-helper').text(null)
-        
+
     }
 }
 
 export const loadVideoSrc = (width = 900, height = 450) => {
+    $('.btn-circle').eq(1).attr('disabled', true)
+
     return new Promise(async (resolve, reject) => {
         try {
             const media = {
@@ -179,10 +185,15 @@ export const loadVideoSrc = (width = 900, height = 450) => {
                 const tracks = stream.getVideoTracks()[0];
                 tracks.onended = () => handleMediaEnd(1, videoElement)
 
-                if (devicePerms.camera.hasPerms) {
+                devicePerms.camera.hasPerms = true;
+
+                if (devicePerms.camera.hasPerms && !loadEnumerateDevice.camera) {
                     devicePerms.camera.tracks = tracks;
                     if (!loadedDevices.camera) {
                         deviceEnumerate(1);
+
+                        // Dont load devices again
+                        loadEnumerateDevice.camera = true;
                     }
                 }
 
@@ -197,8 +208,14 @@ export const loadVideoSrc = (width = 900, height = 450) => {
                         videoElement.srcObject = null;
 
                         // Change the icons and button
-                        if (tracks.readyState == 'ended')
+                        if (tracks.readyState == 'ended') {
+                            ignores.camera.warn = true;
+
                             handleMediaEnd(1, videoElement);
+
+                            // Reset backs the state
+                            ignores.camera.warn = false;
+                        }
                     }
                 });
 
@@ -215,11 +232,12 @@ export const loadVideoSrc = (width = 900, height = 450) => {
         }
     })
         .then(() => updateMediaUI(1))
+        .then(() => $('.video-spinner').addClass('d-none'))
         .catch(() => {
             $('.heading').removeClass('hidden');
             showError('Camera Access Not Granted');
         })
-        .then(() => $('.video-spinner').addClass('d-none'));
+        .finally(() => $('.btn-circle').eq(1).attr('disabled', false));
 };
 
 export const requestMicrophone = async () => {
@@ -305,6 +323,9 @@ export const toggleMediaUI = async (media = 0) => {
     const expectedVar = media == 0 ? micState : camState;
 
     const btns = document.querySelectorAll('.btn-circle');
+
+    console.log("MEDIA IS: ", media);
+
 
     if (Number(newValue) === 1 && expectedVar == 'granted') {
         // Resume the audio
