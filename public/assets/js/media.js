@@ -3,6 +3,12 @@ import { handleMediaEnd, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
 
+export const deviceConfig = {
+    mic: { stream: null },
+    camera: { stream: null },
+    speaker: { stream: null },
+}
+
 export const preloadImage = (url) => {
     $('<link>', {
         rel: 'preload',
@@ -35,11 +41,22 @@ export const handleGrantedMedia = async (media = 0) => {
     await cookieStore.set(`${expectedMedia}-allowed`, 1);
 };
 
-export const loadSound = () => {
+export const loadSound = (changeTrack = false, deviceId = null) => {
     return new Promise(async (resolve, reject) => {
         try {
             const media = { audio: true };
+
+            if (changeTrack && deviceId !== null) {
+                media.audio = {
+                    deviceId: { exact: deviceId }
+                }
+            }
+
             const stream = await toggleMedia(media);
+            // const s = document.getElementById('constau');
+            // s.srcObject = stream
+
+            deviceConfig.mic.stream = stream;
 
             // Handle Audio End
             const tracks = stream.getAudioTracks()[0];
@@ -57,6 +74,12 @@ export const loadSound = () => {
             document.addEventListener('stopmicTrack', () => {
                 if (tracks.readyState == 'live') {
                     tracks.enabled = false;
+                }
+            });
+
+            document.addEventListener('disablemicTrack', () => {
+                if (tracks.readyState == 'live') {
+                    tracks.stop();
                 }
             });
 
@@ -81,9 +104,42 @@ export const loadSound = () => {
  * @param {string} deviceId 
  * @param {string} deviceKind 
  */
-export const changeAudioInput = (e, deviceId, deviceKind) =>{
+export const changeAudioInput = (e, deviceId, deviceKind) => {
     e.preventDefault();
-    
+
+    if (deviceConfig.mic.stream) {
+        // Stop the previous track.
+        dispatchEvent('disablemicTrack');
+
+        // reload The Audio Input
+        loadSound(true, deviceId);
+
+        // Set the text empty of the material icon
+        $('*[data-type="mic"] .default-checked').each((index, element) => {
+            element.textContent = null;
+        })
+        
+        // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
+        
+        // Remove blue color
+        $('*[data-type="mic"].text-blue-500').each((index, element) => {
+            $(element).removeClass('text-blue-500');
+        })
+
+        // Find first span to use material icon (check icon)
+        $(`*[data-type="mic"][data-device-id="${deviceId}"] span:first-child`).text('check');        
+
+        // find perticula option with same device id and add blue color
+        $(`*[data-type="mic"][data-device-id="${deviceId}"]`).addClass('text-blue-500')
+        
+        // Find the element with the same deviceId 
+        // console.log();
+        // $('*[data-type="mic"] .default-checked').text(null)
+        
+        // Set the small text to null
+        // $('.small-helper').text(null)
+        
+    }
 }
 
 export const loadVideoSrc = (width = 900, height = 450) => {
@@ -206,6 +262,14 @@ export const handleMediaChange = (e, media = 0) => {
     }
 };
 
+const dispatchEvent = (event) => {
+    // Create Event.
+    const customEvent = new CustomEvent(event);
+
+    // Dispatch
+    document.dispatchEvent(customEvent);
+}
+
 export const toggleMediaUI = async (media = 0) => {
     const expectedMedia = media == 0 ? 'mic' : 'camera';
 
@@ -224,14 +288,6 @@ export const toggleMediaUI = async (media = 0) => {
     const expectedVar = media == 0 ? micState : camState;
 
     const btns = document.querySelectorAll('.btn-circle');
-
-    const dispatchEvent = (event) => {
-        // Create Event.
-        const customEvent = new CustomEvent(event);
-
-        // Dispatch
-        document.dispatchEvent(customEvent);
-    }
 
     if (Number(newValue) === 1 && expectedVar == 'granted') {
         // Resume the audio

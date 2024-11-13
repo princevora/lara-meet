@@ -91,6 +91,8 @@ export const listMediaDevicesUI = (devices, media = 0) => {
     }
 
     const deviceContainer = document.getElementById(`${expectedDeviceKind}-option-container`);
+    let expectedDevice = 'speaker';
+        expectedDevice = media == 0 ? 'mic' : 'camera';  
 
     let streamingDevice = {
         deviceId: 'default'
@@ -102,39 +104,45 @@ export const listMediaDevicesUI = (devices, media = 0) => {
 
 
     devices.forEach((device) => {
-        let optionClass = 'flex items-center gap-3 odd:bg-white even:bg-gray-200 block px-4 py-2 text-sm text-gray-700 odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
+        let optionClass = 'input-change flex items-center gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
 
         if (device.kind == expectedDeviceKind) {
             // Get audio device info from streaming (running) device.
 
-            const option = document.createElement('a');
-
+            const option = document.createElement('button');
+            
+            let firstChildSpan = document.createElement('span');
+            firstChildSpan.className = 'material-icons-outlined default-checked';
+            
+            let secondChildSpan = document.createElement('span');
+            secondChildSpan.className = 'text-md';
+            
             if (streamingDevice.deviceId == device.deviceId) {
-                let firstChildSpan = document.createElement('span');
-                firstChildSpan.className = 'material-icons-outlined text-blue-500';
-                firstChildSpan.textContent = 'check';
+                optionClass += 'text-blue-500';
 
-                let secondChildSpan = document.createElement('span');
-                secondChildSpan.className = 'text-md text-blue-500';
+                firstChildSpan.textContent = 'check';
+                
                 secondChildSpan.textContent = device.label;
 
                 let childSmallElement = document.createElement('small');
                 childSmallElement.textContent = 'System Default';
-                childSmallElement.className = 'block text-blue-500';
+                childSmallElement.className = 'block';
 
                 secondChildSpan.appendChild(childSmallElement);
-                option.append(firstChildSpan, secondChildSpan);
             } else {
-                let firstChildSpan = document.createElement('span');
-                let secondChildSpan = document.createElement('span');
                 secondChildSpan.textContent = device.label;
 
                 optionClass += 'cursor-pointer';
+                
+                // Change in future
                 option.onclick = (e) => changeAudioInput(e, device.deviceId, expectedDeviceKind);
-                option.append(firstChildSpan, secondChildSpan);
             }
-
+            
+            option.append(firstChildSpan, secondChildSpan);
+            
             option.className = optionClass;
+            option.setAttribute('data-device-id', device.deviceId);
+            option.setAttribute('data-type', expectedDevice);
             deviceContainer.appendChild(option);
         }
     })

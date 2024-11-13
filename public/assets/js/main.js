@@ -52,7 +52,10 @@ export const modifyButton = (enable = true, device) => {
 }
 
 getPermissions().then(async ([micState, cameraState]) => {
-    await navigator.mediaDevices.enumerateDevices().then(devices => listMediaDevicesUI(devices, 2));
+    await navigator.
+        mediaDevices.
+        enumerateDevices().
+        then(devices => listMediaDevicesUI(devices, 2));
 
     if (micState === 'granted') {
         modifyButton(true, 'microphone');
