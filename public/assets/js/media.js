@@ -98,9 +98,6 @@ export const changeDevice = (e, deviceId, deviceKind, type) => {
             element.textContent = null;
         })
 
-        console.log(document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${deviceId}"]`), deviceId);
-
-
         // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
 
         // Remove blue color
@@ -384,9 +381,6 @@ export const toggleMediaUI = async (media = 0) => {
     const expectedVar = media == 0 ? micState : camState;
 
     const btns = document.querySelectorAll('.btn-circle');
-
-    console.log("MEDIA IS: ", media);
-
 
     if (Number(newValue) === 1 && expectedVar == 'granted') {
         // Resume the audio
