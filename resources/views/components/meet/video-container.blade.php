@@ -53,5 +53,4 @@
     </div>
 
     <x-meet.device-enumerate />
-    <audio src="" controls id="constau" autoplay></audio>
 </div>

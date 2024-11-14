@@ -22,6 +22,11 @@ export const preloadImage = (url) => {
     }).appendTo('head');
 };
 
+/**
+ * @var {Audio} 
+ */
+let a = null;
+
 export const toggleMedia = async (media) => {
     try {
         const stream = await navigator.mediaDevices.getUserMedia(media);
@@ -47,6 +52,90 @@ export const handleGrantedMedia = async (media = 0) => {
     await cookieStore.set(`${expectedMedia}-allowed`, 1);
 };
 
+/**
+ * 
+ * @param {Event} e 
+ * @param {string} deviceId 
+ * @param {string} deviceKind 
+ * @param {number} type 
+ */
+export const changeDevice = (e, deviceId, deviceKind, type) => {
+    e.preventDefault();
+    const expectedDeviceKind = getExpectedDeviceKind(type);
+    const expectedDevice = getExpectedDevice(type);
+
+    // expected function
+    let expectedFunction = null;
+
+    if (type == 0) expectedFunction = () => loadSound(true, deviceId);
+    else if (type == 1) expectedFunction = () => loadVideoSrc(true, deviceId);
+    else if (type == 2) expectedFunction = () => loadSeaker(true, deviceId);
+
+    const isSpeaker = type == 2;
+    let expectedMediaStream = null;
+
+    if (type == 0 || type == 1)
+        expectedMediaStream = deviceConfig[expectedDevice].stream;
+    else if (type == 2) //For speaker it should be true
+        expectedMediaStream = true
+
+    if (expectedMediaStream && expectedMediaStream !== null) {
+        // Stop the previous track.
+        dispatchEvent(`disable${expectedDevice}Track`);
+
+        // reload The INput or output device.
+        if (expectedFunction) expectedFunction();
+
+        $(`*[data-type=${expectedDevice}]`).attr('disabled', false);
+
+        const defaultOption = document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${defaultDevice.mic}"]`);
+        if (!defaultOption.onclick) {
+            defaultOption.onclick = (e) => changeDevice(e, defaultDevice.mic, deviceKind, type);
+        }
+
+        // Set the text empty of the material icon
+        $(`*[data-type=${expectedDevice}] .default-checked`).each((index, element) => {
+            element.textContent = null;
+        })
+
+        console.log(document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${deviceId}"]`), deviceId);
+
+
+        // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
+
+        // Remove blue color
+        $(`*[data-type=${expectedDevice}].text-blue-500`).each((index, element) => {
+            $(element).removeClass('text-blue-500');
+        })
+
+        // Find first span to use material icon (check icon)
+        $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"] span:first-child`)
+            .text('check')
+            .each(function () {
+                if (!$(this).hasClass('default-checked')) {
+                    $(this).addClass('default-checked');
+                }
+            });
+
+
+        // find perticula option with same device id and add blue color
+        const selectedOption = $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"]`);
+        $(selectedOption).attr('disabled', true);
+        $(selectedOption).addClass('text-blue-500');
+    }
+}
+
+// This function will be used at the main production .
+const loadSeaker = (changeTrack = false, deviceId = null) => {
+    
+}
+
+/**
+ * 
+ * @param {boolean} changeTrack 
+ * @param {string} deviceId 
+ * @returns 
+ */
 export const loadSound = (changeTrack = false, deviceId = null) => {
     // Disable The main toggle button untill the sound is loaded or refused to load.
     $('.btn-circle').eq(0).attr('disabled', true);
@@ -63,9 +152,6 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
 
             const stream = await toggleMedia(media);
             devicePerms.mic.hasPerms = true;
-
-            // const s = document.getElementById('constau');
-            // s.srcObject = stream
 
             deviceConfig.mic.stream = stream;
 
@@ -119,64 +205,7 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
         .finally(() => $('.btn-circle').eq(0).attr('disabled', false));
 };
 
-/**
- * 
- * @param {Event} e 
- * @param {string} deviceId 
- * @param {string} deviceKind 
- */
-export const changeAudioInput = (e, deviceId, deviceKind, type) => {
-    e.preventDefault();
-    const expectedDeviceKind = getExpectedDeviceKind(type);
-    const expectedDevice = getExpectedDevice(type);
-
-    if (deviceConfig[expectedDevice].stream) {
-        // Stop the previous track.
-        dispatchEvent(`disable${expectedDevice}Track`);
-
-        // reload The Audio Input
-        loadSound(true, deviceId);
-
-        $(`*[data-type=${expectedDevice}]`).attr('disabled', false);
-
-        const defaultOption = document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${defaultDevice.mic}"]`);
-        if (!defaultOption.onclick) {
-            defaultOption.onclick = (e) => changeAudioInput(e, defaultDevice.mic, deviceKind, type);
-        }
-
-        // Set the text empty of the material icon
-        $(`*[data-type=${expectedDevice}] .default-checked`).each((index, element) => {
-            element.textContent = null;
-        })
-
-        console.log(document.querySelector(`*[data-type=${expectedDevice}][data-device-id="${deviceId}"]`), deviceId);
-
-
-        // streamingDevice = Object.entries(devicePerms)[media][1].tracks.getSettings();
-
-        // Remove blue color
-        $(`*[data-type=${expectedDevice}].text-blue-500`).each((index, element) => {
-            $(element).removeClass('text-blue-500');
-        })
-
-        // Find first span to use material icon (check icon)
-        $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"] span:first-child`)
-            .text('check')
-            .each(function () {
-                if (!$(this).hasClass('default-checked')) {
-                    $(this).addClass('default-checked');
-                }
-            });
-
-
-        // find perticula option with same device id and add blue color
-        const selectedOption = $(`[data-type=${expectedDevice}][data-device-id="${deviceId}"]`);
-        $(selectedOption).attr('disabled', true);
-        $(selectedOption).addClass('text-blue-500');
-    }
-}
-
-export const loadVideoSrc = (width = 900, height = 450) => {
+export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
     $('.btn-circle').eq(1).attr('disabled', true)
 
     return new Promise(async (resolve, reject) => {
@@ -184,10 +213,18 @@ export const loadVideoSrc = (width = 900, height = 450) => {
             const media = {
                 video: {
                     facingMode: 'environment',
-                    width,
-                    height
+                    width: 900,
+                    height: 450
                 }
             };
+
+            if (changeTrack && deviceId !== null) {
+                media.video = {
+                    ...media.video,
+                    deviceId: { exact: deviceId }
+                }
+            }
+
             $('.video-spinner').removeClass('d-none');
             $('.heading').addClass('hidden');
 

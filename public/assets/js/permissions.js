@@ -1,4 +1,4 @@
-import { changeAudioInput, handleMediaChange } from './media.js';
+import { changeDevice, handleMediaChange } from './media.js';
 
 export const ignoreChange = {
     mic: false,
@@ -87,9 +87,8 @@ export const listMediaDevicesUI = (devices, media = 0) => {
     let expectedDeviceKind = getExpectedDeviceKind(media);
 
     const deviceContainer = document.getElementById(`${expectedDeviceKind}-option-container`);
-    let expectedDevice = 'speaker';
-    expectedDevice = media == 0 ? 'mic' : 'camera';
-
+    let expectedDevice = media == 0 ? 'mic' : (media == 1 ? 'camera' : 'speaker');
+    
     let streamingDevice = {
         deviceId: 'default'
     };
@@ -133,7 +132,7 @@ export const listMediaDevicesUI = (devices, media = 0) => {
             } else {
 
                 // Change in future
-                option.onclick = (e) => changeAudioInput(e, device.deviceId, expectedDeviceKind, media);
+                option.onclick = (e) => changeDevice(e, device.deviceId, expectedDeviceKind, media);
             }
 
             option.append(firstChildSpan, secondChildSpan);
