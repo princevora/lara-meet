@@ -124,7 +124,7 @@ export const changeDevice = (e, deviceId, deviceKind, type) => {
 
 // This function will be used at the main production .
 const loadSeaker = (changeTrack = false, deviceId = null) => {
-    
+
 }
 
 /**
@@ -290,12 +290,14 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
         }
     })
         .then(() => updateMediaUI(1))
-        .then(() => $('.video-spinner').addClass('d-none'))
         .catch(() => {
             $('.heading').removeClass('hidden');
             showError('Camera Access Not Granted');
         })
-        .finally(() => $('.btn-circle').eq(1).attr('disabled', false));
+        .finally(() => {
+            $('.video-spinner').addClass('d-none')
+            $('.btn-circle').eq(1).attr('disabled', false)
+        });
 };
 
 export const requestMicrophone = async () => {

@@ -48,5 +48,5 @@
         const videoUrl = "{{ asset('assets/images/camera-access.svg') }}";
     </script>
     
-    <script src="{{ asset('assets/js/main.js') }}" type="module"></script>
+    <script src="{{ asset('assets/js/meet/main.js') }}" type="module"></script>
 @endpush
