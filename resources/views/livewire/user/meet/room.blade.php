@@ -19,9 +19,50 @@
                     border-radius: 20%;
                 }
             </style>
+
             <x-meet.main-media-buttons class="media-btns">
-                <button wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
-                    class="btn bg-gray-700 hover:bg-gray-800 text-white mx-2 " id="mic">
+
+                <!-- Popover Element -->
+                <div id="popover-click" data-popover role="tooltip"
+                    class="absolute overflow-hidden z-10 invisible w-72 transition-opacity duration-300 p-0 rounded-md shadow-lg opacity-0 bg-[#1e1f20]">
+                    <a href="#"
+                        class="block text-gray-300 py-[.825rem] px-4 hover:bg-gray-700 hover:text-white hover:rounded-none transition-all duration-200 w-full">
+                        <span class="font-medium flex gap-3">
+                            <span class="material-symbols-outlined">select_window</span>
+                            <span>Present Something Else</span>
+                        </span>
+                    </a>
+                    <a href="#"
+                        class="block text-gray-300 py-[.825rem] px-4 hover:bg-gray-700 hover:text-white hover:rounded-none transition-all duration-200 w-full">
+                        <span class="font-medium flex gap-3">
+                            <span class="material-symbols-outlined">cancel_presentation</span>
+                            <span>Stop Presenting</span>
+                        </span>
+                    </a>
+                    <div data-popper-arrow class="bg-[#1e1f20]"></div>
+                </div>
+
+                <style>
+                    .bg-blue:hover {
+                        background-color: #7ea6e7;
+                    }
+
+                    .bg-blue:active {
+                        background-color: #7ea6e7;
+                    }
+
+
+                    .bg-blue {
+                        background-color: #a8c7fa;
+                    }
+
+                    .bg-blue span {
+                        color: #062e6f !important;
+                    }
+                </style>
+
+                <button onclick="handleClick()" wire:loading.attr.disabled="true" type="button" data-type="0"
+                    class="btn bg-gray-700 hover:bg-gray-800 text-white mx-2 " id="screen-capture">
 
                     <!-- Microphone icon -->
                     <span class="material-icons-outlined main-icon text-gray-400">present_to_all</span>
@@ -32,7 +73,7 @@
                     <!-- Microphone icon -->
                     <span class="material-icons-outlined main-icon text-gray-400">call_end</span>
                 </button>
-            </x-meet.main-media-buttons >
+            </x-meet.main-media-buttons>
 
             <x-meet.modals.request-device />
 
@@ -57,3 +98,7 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
+@endpush

@@ -2,6 +2,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    safelist: ['hover:brightness-50'],
     darkMode: 'class',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
@@ -19,6 +20,6 @@ export default {
         },
     },
     plugins: [
-        import('flowbite/plugin')
+        import('flowbite/plugin'),
     ],
 };
