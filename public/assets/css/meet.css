@@ -136,3 +136,8 @@ body {
 .bg-warning {
     background-color: rgb(250, 123, 23) !important;
 }
+
+.fixed-bottom {
+    left: auto;
+    right: auto;
+}
