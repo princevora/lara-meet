@@ -32,7 +32,9 @@
                             <span>Present Something Else</span>
                         </span>
                     </a>
-                    <a href="#"
+                    <a 
+                        href="javascript:void(0)"
+                        onclick="stopPresentation()"
                         class="block text-gray-300 py-[.825rem] px-4 hover:bg-gray-700 hover:text-white hover:rounded-none transition-all duration-200 w-full">
                         <span class="font-medium flex gap-3">
                             <span class="material-symbols-outlined">cancel_presentation</span>
