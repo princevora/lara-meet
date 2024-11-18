@@ -19,14 +19,6 @@
             </style>
 
             <x-meet.main-media-buttons addMicGroupButton addCameraGroupButton class="media-btns">
-
-                @slot('micSlot')
-                    <button type="button"
-                        class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
-                        Profile
-                    </button>
-                @endslot
-
                 <!-- Popover Element -->
                 <div id="popover-click" data-popover role="tooltip"
                     class="absolute overflow-hidden z-10 invisible w-72 transition-opacity duration-300 p-0 rounded-md shadow-lg opacity-0 bg-[#1e1f20]">
@@ -65,6 +57,24 @@
                         color: #062e6f !important;
                     }
                 </style>
+
+                @slot('micSlot')
+                    <button type="button"
+                        class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
+                        <span class="material-symbols-outlined">
+                            keyboard_arrow_up
+                        </span>
+                    </button>
+                @endslot
+
+                @slot('cameraSlot')
+                    <button type="button"
+                        class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
+                        <span class="material-symbols-outlined">
+                            keyboard_arrow_up
+                        </span>
+                    </button>
+                @endslot
 
                 <button onclick="handleClick()" wire:loading.attr.disabled="true" type="button" data-type="0"
                     class="btn rounded-xl bg-gray-700 hover:bg-gray-800 text-white" id="screen-capture">
