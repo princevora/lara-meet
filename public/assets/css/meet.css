@@ -59,8 +59,8 @@ body {
 }
 
 .media-btns button {
-    width: 56px !important;
-    height: 56px !important;
+    width: 56px ;
+    height: 56px;
     margin: 0 10px;
     display: flex;
     justify-content: center;

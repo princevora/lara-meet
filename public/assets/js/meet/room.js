@@ -9,6 +9,25 @@ popoverBtn.onclick = screenCapture;
 let stream = null;
 let popover;
 
+function showDate() {
+    console.log('called');
+    
+    const date = new Date();
+    const textContent = `${date.toString().split(' ')[0]},  ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    $('#date-time').text(textContent);
+}
+
+function updateDateTime() {
+    showDate();
+
+    const date = new Date();
+    const remainingSeconds = 60 - date.getSeconds();
+
+    setTimeout(updateDateTime, remainingSeconds * 1000);
+}
+
+updateDateTime();
+
 async function screenCapture() {
     if (popover) {
         console.log('popoever');
@@ -22,7 +41,6 @@ async function screenCapture() {
 
     await getDisplay()
         .then((captureStream) => {
-
             stream = captureStream;
 
             // Make the button to toggle the screens
@@ -45,27 +63,26 @@ async function screenCapture() {
         .finally(() => $(btn).attr('disabled', false));
 }
 
-const togglePrimary = () => {
+function togglePrimary() {
     $(btn)
         .removeClass('bg-gray-700 hover:bg-gray-800')
         .addClass('bg-blue')
         .blur();
 }
 
-const toggleSecondary = () => {
+function toggleSecondary() {
     $(btn)
         .addClass('bg-gray-700 hover:bg-gray-800') // Reset the button styles after screen capture ends
         .removeClass('bg-blue');
 }
 
-const handleClick = (e) => {
+function handleClick(e) {
     if (!popoverOpenable || !stream || !stream.active) {
         if (!popoverBtn.onclick) popoverBtn.onclick = screenCapture
     }
 
     else if (popoverOpenable && stream.active) {
         if ($('#popover-click')) showPopOverElement();
-        else makePopoverElement();
 
         e.stopPropagation();
 
@@ -83,7 +100,7 @@ const handleClick = (e) => {
     } else popoverOpenable = false;
 }
 
-const togglePopOverAttr = () => {
+function togglePopOverAttr() {
     $(btn).attr('data-popover-target', (_, attr) => {
         if (attr) {
             $(btn).removeAttr('data-popover-target');  // Remove the attribute if it's set
@@ -103,13 +120,14 @@ const togglePopOverAttr = () => {
     });
 };
 
-const getAudioTracks = () => { };
+function getAudioTracks() { };
 
-const getDisplay = () => {
-    return new Promise((resolve, reject) => {
+function getDisplay() {
+    return new Promise(async (resolve, reject) => {
         try {
             // get screen
-            const stream = navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'monitor' }, audio: true });
+            const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true });
+            console.log(stream);
 
             // Resolve stream 
             resolve(stream);
@@ -120,7 +138,7 @@ const getDisplay = () => {
     })
 }
 
-const stopPresentation = () => {
+function stopPresentation() {
     if (stream && stream.active) {
         stream.getTracks().forEach(track => track.stop())
 
@@ -135,19 +153,19 @@ const stopPresentation = () => {
     }
 }
 
-const removePopOverElement = () => {
+function removePopOverElement() {
     $('#popover-click').fadeOut(200);
 }
 
-const showPopOverElement = () => {
+function showPopOverElement() {
     $('#popover-click').fadeIn();
 }
 
-const handleScreenEnd = () => {
-    toggleSecondary();
+function handleScreenEnd() {
+    stopPresentation();
 }
 
-const makePopoverElement = () => {
+function makePopoverElement() {
     // Create the popover div
     const popover = $('<div>', {
         id: 'popover-click',

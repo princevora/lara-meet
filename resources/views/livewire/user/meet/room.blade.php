@@ -1,14 +1,12 @@
 <div class="d-flex justify-content-center">
-    <div class="fixed-bottom bg-dark border-top border-secondary mb-4 p-3 rounded-2xl d-flex justify-content-between align-items-center"
+    <div class="h-[14%] fixed-bottom mb-4 p-3 rounded-2xl d-flex justify-content-between align-items-center"
         style="width: 95%;">
         <!-- Left Section -->
-        <div class="d-none d-md-flex align-items-center text-secondary me-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20" class="bi bi-clock me-2"
-                style="width: 12px; height: 12px;">
-                <path
-                    d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
-            </svg>
-            <span class="text-sm">12:43 PM</span>
+        <div class="d-none d-md-flex align-items-center gap-2 text-secondary me-auto">
+            <span class="material-symbols-outlined">
+                schedule
+            </span>
+            <span class="text-sm font-medium" id="date-time"></span>
         </div>
 
         <!-- Center Section -->
@@ -25,16 +23,14 @@
                 <!-- Popover Element -->
                 <div id="popover-click" data-popover role="tooltip"
                     class="absolute overflow-hidden z-10 invisible w-72 transition-opacity duration-300 p-0 rounded-md shadow-lg opacity-0 bg-[#1e1f20]">
-                    <a href="#"
+                    <a href="javascript:void(0)"
                         class="block text-gray-300 py-[.825rem] px-4 hover:bg-gray-700 hover:text-white hover:rounded-none transition-all duration-200 w-full">
                         <span class="font-medium flex gap-3">
                             <span class="material-symbols-outlined">select_window</span>
                             <span>Present Something Else</span>
                         </span>
                     </a>
-                    <a 
-                        href="javascript:void(0)"
-                        onclick="stopPresentation()"
+                    <a href="javascript:void(0)" onclick="stopPresentation()"
                         class="block text-gray-300 py-[.825rem] px-4 hover:bg-gray-700 hover:text-white hover:rounded-none transition-all duration-200 w-full">
                         <span class="font-medium flex gap-3">
                             <span class="material-symbols-outlined">cancel_presentation</span>
@@ -64,13 +60,13 @@
                 </style>
 
                 <button onclick="handleClick()" wire:loading.attr.disabled="true" type="button" data-type="0"
-                    class="btn bg-gray-700 hover:bg-gray-800 text-white mx-2 " id="screen-capture">
+                    class="btn rounded-xl bg-gray-700 hover:bg-gray-800 text-white mx-2 " id="screen-capture">
 
                     <!-- Microphone icon -->
                     <span class="material-icons-outlined main-icon text-gray-400">present_to_all</span>
                 </button>
                 <button wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
-                    class="btn text-white mx-2 not-allowed" id="mic">
+                    class="btn rounded-xl px-4 !w-24 text-white mx-2 not-allowed" id="mic">
 
                     <!-- Microphone icon -->
                     <span class="material-icons-outlined main-icon text-gray-400">call_end</span>
@@ -78,7 +74,6 @@
             </x-meet.main-media-buttons>
 
             <x-meet.modals.request-device />
-
         </div>
 
         <!-- Right Section -->
@@ -102,5 +97,8 @@
 </div>
 
 @push('scripts')
+    <script>
+        $('body').addClass('bg-dark')
+    </script>
     <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
 @endpush
