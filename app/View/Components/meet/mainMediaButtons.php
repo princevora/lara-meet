@@ -43,8 +43,8 @@ class mainMediaButtons extends Component
     public function __construct
     (
         ?string $class = "media-btns mb-3",
-        bool  $addMicGroupButton = false,
-        bool  $addCameraGroupButton = false,
+        bool $addMicGroupButton = false,
+        bool $addCameraGroupButton = false,
         mixed $micGroupButtonContent = "",
         mixed $cameraGroupButtonContent = ""
     ) {
