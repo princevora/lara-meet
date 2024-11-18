@@ -90,8 +90,8 @@
                                                 d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </button>
-    
-    
+
+
                                     <div id="microphoneDropdown"
                                         class="hidden z-10 w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-xl top-full"
                                         role="menu" aria-labelledby="microphoneDropdownButton">
@@ -99,9 +99,9 @@
                                             <!-- Dynamic options will be appended here -->
                                         </div>
                                     </div>
-    
+
                                 </div>
-    
+
                                 <div id="tooltip-top" role="tooltip"
                                     class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                     Permission Needed
