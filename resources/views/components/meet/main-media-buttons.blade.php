@@ -23,8 +23,8 @@
             </button>
         </div>
         <div @class(['inline-flex' => $addMicGroupButton, 'mx-2'])>
-            @if ($addMicGroupButton)
-                {!! $micSlot ?? '' !!}
+            @if ($addCameraGroupButton)
+                {!! $cameraSlot ?? '' !!}
             @endif
             <button wire:loading.attr.disabled='true' type="button" data-type="1" onclick="openModal(event, 1)"
                 id="webcame" @class([

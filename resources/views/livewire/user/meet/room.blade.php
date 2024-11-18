@@ -59,12 +59,60 @@
                 </style>
 
                 @slot('micSlot')
-                    <button type="button"
+                    <button data-popover-target="popover-click" data-popover-trigger="click" type="button"
                         class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
                         <span class="material-symbols-outlined">
                             keyboard_arrow_up
                         </span>
                     </button>
+
+                    <div data-popover id="popover-click" role="tooltip"
+                        class="absolute z-10 invisible inline-block w-64 text-sm text-gray-400 transition-opacity duration-300 rounded-lg shadow-sm opacity-0 border-gray-600 bg-gray-800">
+                        <div
+                            class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
+                            <h3 class="font-semibold text-gray-900 dark:text-white">Popover click</h3>
+                        </div>
+                        <div class="px-3 py-2">
+                            <div class="!w-full">
+                                <!-- Microphone Dropdown-->
+                                <div class="relative inline-block text-left w-full sm:w-auto"
+                                    data-device-related='microphone'>
+                                    <button disabled data-tooltip-placement="top" id="microphoneDropdownButton"
+                                        data-dropdown-toggle="microphoneDropdown"
+                                        class="dropdown-device flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 !w-full sm:w-auto disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
+                                        <span class="mr-2 inline-flex gap-1">
+                                            <span class="material-icons-outlined text-[18px]">mic</span>
+                                            <span id="info-mic">
+                                                Microphone
+                                            </span>
+                                        </span>
+                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+
+                                    <div id="microphoneDropdown"
+                                        class="hidden z-10 w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-xl top-full"
+                                        role="menu" aria-labelledby="microphoneDropdownButton">
+                                        <div id="audioinput-option-container" class="" role="none">
+                                            <!-- Dynamic options will be appended here -->
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div id="tooltip-top" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                    Permission Needed
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-popper-arrow></div>
+                    </div>
                 @endslot
 
                 @slot('cameraSlot')

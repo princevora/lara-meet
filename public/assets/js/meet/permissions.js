@@ -99,7 +99,7 @@ export const listMediaDevicesUI = (devices, media = 0) => {
 
 
     devices.forEach((device) => {
-        let optionClass = 'input-change grid grid-cols-[15%] items-center text-start gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
+        let optionClass = '!w-full input-change grid grid-cols-[15%] items-center text-start gap-3 odd:bg-white even:bg-gray-200 px-4 py-2 text-sm odd:hover:bg-gray-100 even:hover:bg-gray-300 ';
 
         if (device.kind == expectedDeviceKind) {
             // Get audio device info from streaming (running) device.
