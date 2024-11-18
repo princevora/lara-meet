@@ -19,9 +19,9 @@ class mainMediaButtons extends Component
     public bool $addMicGroupButton = false;
 
     /**
-     * @var mixed $micGroupButtonContent
+     * @var mixed $micSlot
      */
-    public mixed $micGroupButtonContent = null;
+    public mixed $micSlot = null;
 
     /**
      * @var bool $addCameraGroupButton 
@@ -29,29 +29,29 @@ class mainMediaButtons extends Component
     public bool $addCameraGroupButton = false;
 
     /**
-     * @var mixed $cameraGroupButtonContent
+     * @var mixed $cameraSlot
      */
-    public mixed $cameraGroupButtonContent = null;
+    public mixed $cameraSlot = null;
 
     /**
      * @param mixed $class
      * @param bool  $addMicGroupButton
      * @param bool  $addCameraGroupButton
-     * @param mixed $micGroupButtonContent
-     * @param mixed $cameraGroupButtonContent
+     * @param mixed $micSlot
+     * @param mixed $cameraSlot
      */
     public function __construct
     (
         ?string $class = "media-btns mb-3",
         bool $addMicGroupButton = false,
         bool $addCameraGroupButton = false,
-        mixed $micGroupButtonContent = "",
-        mixed $cameraGroupButtonContent = ""
+        mixed $micSlot = "",
+        mixed $cameraSlot = ""
     ) {
         $this->addMicGroupButton = $addMicGroupButton;
         $this->addCameraGroupButton = $addCameraGroupButton;
-        $this->micGroupButtonContent = $micGroupButtonContent;
-        $this->cameraGroupButtonContent = $cameraGroupButtonContent;
+        $this->micSlot = $micSlot;
+        $this->cameraSlot = $cameraSlot;
         $this->class = $class;
     }
 

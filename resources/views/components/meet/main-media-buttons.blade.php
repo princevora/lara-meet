@@ -1,7 +1,10 @@
 <div>
     <!-- Bottom center: Microphone and Camera buttons -->
     <div class="{{ $class }}" wire:loading.class="fixed inset-0 bg-gray-500 opacity-50 pointer-events-none">
-        <div class="">
+        <div @class(['inline-flex' => $addMicGroupButton])>
+            @if ($addMicGroupButton)
+                {{ $micGroupButtonContent }}
+            @endif
             <button wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
                 class="btn btn-circle text-white not-allowed" id="mic">
     
