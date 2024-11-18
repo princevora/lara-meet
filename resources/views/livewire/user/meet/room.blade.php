@@ -59,14 +59,13 @@
                 </style>
 
                 @slot('micSlot')
+                    <button data-popover-target="popover-click-microphone" data-popover-trigger="click" type="button"
+                        class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
+                        <span class="material-symbols-outlined">
+                            keyboard_arrow_up
+                        </span>
+                    </button>
                     <div class="ignore-class">
-                        <button data-popover-target="popover-click-microphone" data-popover-trigger="click" type="button"
-                            class="disabled:bg-gray-600 disabled:shadow-inner disabled:cursor-default cursor-pointer px-4 py-2 text-sm font-medium bg-gray-800 rounded-l-xl text-white hover:text-white hover:bg-gray-900 focus:ring-blue-500 focus:text-white">
-                            <span class="material-symbols-outlined">
-                                keyboard_arrow_up
-                            </span>
-                        </button>
-    
                         <div data-popover id="popover-click-microphone" role="tooltip"
                             class="absolute z-10 invisible inline-block w-64 text-sm text-gray-400 transition-opacity duration-300 rounded-lg shadow-sm opacity-0 border-gray-600 bg-gray-800">
                             <div

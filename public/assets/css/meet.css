@@ -14,8 +14,8 @@ body {
 
 .btn-circle {
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,7 +48,8 @@ body {
     background-color: rgb(153 27 27);
 }
 
-.media-btns {
+/* Apply styles to .media-btns unless it contains .ignore-class */
+.media-btns:not(:has(.ignore-class)) {
     position: absolute;
     bottom: 10px;
     left: 50%;
@@ -58,8 +59,9 @@ body {
     z-index: 2;
 }
 
-.media-btns button {
-    width: 56px ;
+/* Styles for buttons inside .media-btns unless .ignore-class is present */
+.media-btns:not(:has(.ignore-class)) button {
+    width: 56px;
     height: 56px;
     display: flex;
     justify-content: center;
