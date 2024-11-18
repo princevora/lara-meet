@@ -49,7 +49,7 @@ body {
 }
 
 /* Apply styles to .media-btns unless it contains .ignore-class */
-.media-btns:not(:has(.ignore-class)) {
+.media-btns {
     position: absolute;
     bottom: 10px;
     left: 50%;
@@ -59,8 +59,8 @@ body {
     z-index: 2;
 }
 
-/* Styles for buttons inside .media-btns unless .ignore-class is present */
-.media-btns:not(:has(.ignore-class)) button {
+/* Apply styles to buttons inside .media-btns except those inside .ignore-class */
+.media-btns button:not(.ignore-class button) {
     width: 56px;
     height: 56px;
     display: flex;

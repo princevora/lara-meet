@@ -77,8 +77,8 @@
                                 <div class="relative inline-block text-left w-full" data-device-related='microphone'>
                                     <button disabled data-tooltip-placement="top" id="microphoneDropdownButton"
                                         data-dropdown-toggle="microphoneDropdown"
-                                        class="!h-auto dropdown-device flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 !w-full sm:!w-full disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
-                                        <span class="mr-2 inline-flex gap-1">
+                                        class="!h-auto dropdown-device flex px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 !w-full sm:!w-full disabled:bg-gray-950 disabled:text-gray-950 disabled:border-gray-800 disabled:shadow-md disabled:opacity-70">
+                                        <span class="mr-2 inline-flex gap-1 justify-center">
                                             <span class="material-icons-outlined text-[18px]">mic</span>
                                             <span id="info-mic">
                                                 Microphone
@@ -93,7 +93,7 @@
 
 
                                     <div id="microphoneDropdown"
-                                        class="hidden z-10 w-72 mb-2 bg-white border border-gray-200 rounded-md shadow-xl top-full"
+                                        class="hidden z-10 w-72 mb-2 bg-dark border font-medium border-dark rounded-md shadow-xl top-full"
                                         role="menu" aria-labelledby="microphoneDropdownButton">
                                         <div id="audioinput-option-container" class="" role="none">
                                             <!-- Dynamic options will be appended here -->
