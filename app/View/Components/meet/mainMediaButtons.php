@@ -34,15 +34,19 @@ class mainMediaButtons extends Component
     public mixed $cameraGroupButtonContent = null;
 
     /**
-     * Create a new component instance.
+     * @param mixed $class
+     * @param bool  $addMicGroupButton
+     * @param bool  $addCameraGroupButton
+     * @param mixed $micGroupButtonContent
+     * @param mixed $cameraGroupButtonContent
      */
     public function __construct
     (
         ?string $class = "media-btns mb-3",
-        $addMicGroupButton = false,
-        $addCameraGroupButton = false,
-        $micGroupButtonContent = "",
-        $cameraGroupButtonContent = ""
+        bool  $addMicGroupButton = false,
+        bool  $addCameraGroupButton = false,
+        mixed $micGroupButtonContent = "",
+        mixed $cameraGroupButtonContent = ""
     ) {
         $this->addMicGroupButton = $addMicGroupButton;
         $this->addCameraGroupButton = $addCameraGroupButton;
