@@ -3,12 +3,16 @@
     <div class="{{ $class }}" wire:loading.class="fixed inset-0 bg-gray-500 opacity-50 pointer-events-none">
         <div @class(['inline-flex' => $addMicGroupButton])>
             @if ($addMicGroupButton)
-                {{ $micSlot ?? '' }}
+                {!! $micSlot ?? '' !!}
             @endif
             <button 
-                wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
-                class="btn btn-circle text-white not-allowed" id="mic">
-    
+                @class(['btn btn-circle text-white not-allowed','!rounded-r-xl !rounded-l-none' => $addMicGroupButton])
+                wire:loading.attr.disabled="true" 
+                type="button" 
+                data-type="0" 
+                onclick="openModal(event, 0)"
+                id="mic"
+            >
                 <!-- Microphone icon -->
                 <span class="material-icons-outlined main-icon text-gray-400">mic</span>
     
