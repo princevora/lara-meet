@@ -61,7 +61,6 @@ body {
 .media-btns button {
     width: 56px ;
     height: 56px;
-    margin: 0 10px;
     display: flex;
     justify-content: center;
     align-items: center;

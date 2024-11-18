@@ -60,11 +60,12 @@
                 </style>
 
                 <button onclick="handleClick()" wire:loading.attr.disabled="true" type="button" data-type="0"
-                    class="btn rounded-xl bg-gray-700 hover:bg-gray-800 text-white mx-2 " id="screen-capture">
+                    class="btn rounded-xl bg-gray-700 hover:bg-gray-800 text-white" id="screen-capture">
 
                     <!-- Microphone icon -->
                     <span class="material-icons-outlined main-icon text-gray-400">present_to_all</span>
                 </button>
+
                 <button wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
                     class="btn rounded-xl px-4 !w-24 text-white mx-2 not-allowed" id="mic">
 

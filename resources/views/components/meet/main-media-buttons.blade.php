@@ -2,7 +2,7 @@
     <!-- Bottom center: Microphone and Camera buttons -->
     <div class="{{ $class }}" wire:loading.class="fixed inset-0 bg-gray-500 opacity-50 pointer-events-none">
         <button wire:loading.attr.disabled="true" type="button" data-type="0" onclick="openModal(event, 0)"
-            class="btn btn-circle text-white mx-2 not-allowed" id="mic">
+            class="btn btn-circle text-white not-allowed" id="mic">
 
             <!-- Microphone icon -->
             <span class="material-icons-outlined main-icon text-gray-400">mic</span>
