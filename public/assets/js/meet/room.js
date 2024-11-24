@@ -10,8 +10,6 @@ let stream = null;
 let popover;
 
 function showDate() {
-    console.log('called');
-    
     const date = new Date();
     const textContent = `${date.toString().split(' ')[0]},  ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
     $('#date-time').text(textContent);
