@@ -6,12 +6,18 @@ use Livewire\Component;
 
 class StartMeeting extends Component
 {
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function render()
     {
         $this->dispatch('flowbiteInit');
         return view('livewire.user.home.start-meeting');
     }
 
+    /**
+     * @return string
+     */
     public function placeholder()
     {
         return <<<HTML
@@ -20,5 +26,9 @@ class StartMeeting extends Component
                 <span class="sr-only">Loading...</span>
             </div>
         HTML;
+    }
+
+    public function startMeeting()
+    {
     }
 }
