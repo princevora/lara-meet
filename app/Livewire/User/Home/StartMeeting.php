@@ -38,6 +38,11 @@ class StartMeeting extends Component
             $code = implode('-', array_map(fn () => Str::random(4), range(1, 4)));    
         } while (Meeting::where('code', $code)->exists());
 
-        
+        // Save the code once its completed...
+        Meeting::create([
+            'code' => $code
+        ]);
+
+        return $this->redirectRoute('meet.add-name', $code, navigate: true);
     }
 }
