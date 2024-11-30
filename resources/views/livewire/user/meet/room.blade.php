@@ -28,16 +28,16 @@
 
     <div class="p-4">
         <a href="#"
-            class="block max-w-sm p-6 border rounded-lg shadow bg-gray-800 border-dark hover:bg-gray-700">
+            class="block max-w-xs p-6 border rounded-lg shadow bg-gray-800 border-dark hover:bg-gray-700">
 
             <div class="h-24 w-24 flex justify-center mx-auto align-items-center bg-gray-600 rounded-full">
-                <h2 class="font-bold text-gray-300">
+                <h2 class="text-ellipsis font-bold text-gray-300 p-2">
                     HELO
                 </h2>
             </div>
-            <p class="font-normal text-gray-700 dark:text-gray-400">Here are the biggest enterprise technology
-                acquisitions
-                of 2021 so far, in reverse chronological order.</p>
+            <p class="text-center font-medium fs-5 text-gray-300 mt-2 dark:text-gray-400">
+                HELO
+            </p>
         </a>
     </div>
 
