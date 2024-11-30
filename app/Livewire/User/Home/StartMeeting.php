@@ -2,7 +2,9 @@
 
 namespace App\Livewire\User\Home;
 
+use App\Models\Meeting;
 use Livewire\Component;
+use Str;
 
 class StartMeeting extends Component
 {
@@ -30,5 +32,12 @@ class StartMeeting extends Component
 
     public function startMeeting()
     {
+        $code = "";
+
+        do {
+            $code = implode('-', array_map(fn () => Str::random(4), range(1, 4)));    
+        } while (Meeting::where('code', $code)->exists());
+
+        
     }
 }
