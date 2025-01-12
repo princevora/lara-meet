@@ -13,6 +13,21 @@ class AddName extends Component
     public string $name = 'John Doe';
 
     /**
+     * @var string $code
+     */
+    public string $code;
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $code
+     * @return void
+     */
+    public function mount(Request $request, $code)
+    {
+        $this->code = $code;
+    }
+
+    /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function render()
@@ -28,13 +43,13 @@ class AddName extends Component
     {
         // Validate field
         $this->validate([
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         // Set cookie 
         $request->cookies->set('name', $this->name);
 
         // Return redirect to Connection Page
-        return $this->redirect(route('meet.connect', 'prince'), true);
+        return $this->redirect(route('meet.connect', $this->code));
     }
 }
