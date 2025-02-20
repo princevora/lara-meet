@@ -85,7 +85,7 @@
         <!-- Footer -->
         <footer class="mt-12 text-center text-gray-500 text-sm">
             <p>
-                Powered by <a href="#" class="text-purple-400 hover:underline">Lara - Profile</a>. All rights
+                Powered by <a href="#" class="text-purple-400 hover:underline">Lara - Meet</a>. All rights
                 reserved.
             </p>
         </footer>
