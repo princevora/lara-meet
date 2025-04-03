@@ -1,3 +1,7 @@
+@php
+    $useBootstrap = $useBootstrap ?? true;
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -14,18 +18,43 @@
 
     @stack('style')
 
+    @if ($useBootstrap)
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+            integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+    @endif
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
-        integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="{{ asset('assets/css/meet.css') }}">
 
     @livewireStyles
+
+    <style>
+        /* Live animated gradient background */
+        body {
+            background: linear-gradient(270deg, #1e293b, #0f172a, #2d3748, #1a202c);
+            background-size: 800% 800%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
 </head>
 
-<body class="dark">
+<body class="dark h-[10px]">
 
     {{ $slot }}
 
@@ -33,7 +62,7 @@
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     @stack('scripts')
-    
+
     <script>
         const microphoneUrl = "{{ asset('assets/images/microphone-access.svg') }}";
         const videoUrl = "{{ asset('assets/images/camera-access.svg') }}";
@@ -41,6 +70,12 @@
 
     <script src="{{ asset('assets/js/meet/main.js') }}" type="module"></script>
     @livewireScripts
+
+    <script>
+        window.addEventListener('load', () => {
+            Flowbite.initFlowbite();
+        })
+    </script>
 </body>
 
 </html>

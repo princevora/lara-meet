@@ -94,7 +94,7 @@
                     <h5 class="mb-2 text-2xl font-semibold tracking-tight text-white">Not Logged In Yet?</h5>
                 </a>
                 <p class="mb-3 font-normal text-gray-400">Login to access the Lara Meet App</p>
-                <a href="#" class="inline-flex font-medium items-center text-blue-600 hover:underline">
+                <a href="{{ route('user.auth.login') }}" class="inline-flex font-medium items-center text-blue-600 hover:underline">
                     Login Here..
                     <svg class="w-3 h-3 ms-2.5 rtl:rotate-[270deg]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                         fill="none" viewBox="0 0 18 18">
