@@ -1,13 +1,25 @@
-const btn = $('#screen-capture');
+let stream = null;
+let popover;
 let popoverOpenable = false;
 
+const btn = $('#screen-capture');
 const popoverBtn = document.getElementById('screen-capture');
 
 // Initialize the button onclick event.
 popoverBtn.onclick = screenCapture;
 
-let stream = null;
-let popover;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const { getPermissions } = await import('./permissions.js'); // Lazy import
+    const { deviceConfig } = await import('./media.js'); // Lazy import
+    const [micState, cameraState] = await getPermissions();
+
+    if (cameraState == 'granted') {
+        document.addEventListener('roomProfile', (e) => {
+            console.log(e.detail.stream); // ✅ Now it works!
+        });
+    }
+});
 
 function showDate() {
     const date = new Date();

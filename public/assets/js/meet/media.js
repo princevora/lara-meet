@@ -244,6 +244,11 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                     }
                 }
 
+                const roomProfileEvent = new CustomEvent('roomProfile', {
+                    detail: { stream }  // Pass `stream` inside `detail`
+                });
+                document.dispatchEvent(roomProfileEvent);
+                
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
                 videoElement.play();
