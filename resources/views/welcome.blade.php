@@ -42,7 +42,7 @@
         <header class="text-center mb-12">
             <h1 class="text-5xl font-extrabold mb-4">
                 Welcome to <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-purple-400">Lara
-                    - Profile</span>
+                    - Meet</span>
             </h1>
             <p class="text-gray-300 text-lg max-w-2xl mx-auto">
                 Effortlessly join or host virtual meetings with ease and style.
