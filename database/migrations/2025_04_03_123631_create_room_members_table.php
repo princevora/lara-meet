@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('meetings', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->string('code')->unique();
+        Schema::create('room_members', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('room_id')->constrained('rooms')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('meetings');
+        Schema::dropIfExists('room_members');
     }
 };

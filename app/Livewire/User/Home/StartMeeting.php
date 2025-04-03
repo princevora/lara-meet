@@ -3,6 +3,7 @@
 namespace App\Livewire\User\Home;
 
 use App\Models\Meeting;
+use App\Models\Room;
 use Livewire\Component;
 use Str;
 
@@ -36,12 +37,13 @@ class StartMeeting extends Component
 
         do {
             $code = implode('-', array_map(fn () => strtolower(Str::random(4)), range(1, 4)));    
-        } while (Meeting::where('code', $code)->exists());
+        } while (Room::where('code', $code)->exists());
 
         // Save the code once its completed...
-        Meeting::create([
-            'code' => $code
-        ]);
+
+        $room = new Room();
+        $room->code = $code;
+        $room->save();
 
         return $this->redirectRoute('meet.add-name', $code);
     }
