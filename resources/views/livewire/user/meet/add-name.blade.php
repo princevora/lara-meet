@@ -11,8 +11,9 @@
                 <input 
                     wire:model='name' 
                     type="text" 
-                    class="w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
+                    class="disabled:bg-gray-500 cursor-not-allowed w-full px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
                     placeholder="John Doe"
+                    disabled
                 >
                 @error('name')
                     <p class="mt-2 text-sm text-red-500">

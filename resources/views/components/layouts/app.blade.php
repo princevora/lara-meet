@@ -29,77 +29,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/meet.css') }}">
 
     @livewireStyles
-
     
-    <style>
-        /* Full-screen animated dark gradient background */
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: linear-gradient(270deg, #0a0f1a, #0c1321, #141e30, #0a0d14);
-            background-size: 400% 400%;
-            animation: gradientAnimation 12s ease infinite;
-            position: relative;
-        }
-
-        /* Smooth gradient animation */
-        @keyframes gradientAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        /* Wavy Effect Using Pseudo-Elements */
-        body::before,
-        body::after {
-            content: "";
-            position: fixed;
-            width: 220%;
-            height: 220px;
-            background: radial-gradient(circle, rgba(100, 100, 255, 0.08) 20%, transparent 80%);
-            top: 80%;
-            left: -60%;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.6;
-            animation: waveMotion 10s ease-in-out infinite;
-        }
-
-        /* Second wave for depth */
-        body::after {
-            top: 85%;
-            left: -50%;
-            width: 200%;
-            height: 200px;
-            opacity: 0.4;
-            filter: blur(120px);
-            animation-duration: 14s;
-            animation-delay: 4s;
-        }
-
-        /* Deep, slow wave motion */
-        @keyframes waveMotion {
-            0% {
-                transform: translateX(-40%) translateY(0) scaleX(1);
-            }
-
-            50% {
-                transform: translateX(40%) translateY(15px) scaleX(1.2);
-            }
-
-            100% {
-                transform: translateX(-40%) translateY(0) scaleX(1);
-            }
-        }
-    </style>
 </head>
 
 <body class="dark h-[10px]">
