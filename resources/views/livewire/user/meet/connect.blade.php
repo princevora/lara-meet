@@ -9,6 +9,7 @@
                 class="flex gap-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow"
                 wire:loading.attr="disabled">
                 <span wire:loading.remove>Connect to Meeting</span>
+                <span wire:loading.block>Connecting..</span>
 
                 <div wire:loading wire:target="connectToRoom">
                     <div role="status">
