@@ -47,7 +47,7 @@
             Register new account
         </button>
         <div class="my-5">
-            <a href="{{ route('user.auth.login') }}" class="text-blue-400 text-center underline">
+            <a href="{{ route('login') }}" class="text-blue-400 text-center underline">
                 Already Have An Account?
             </a>
         </div>

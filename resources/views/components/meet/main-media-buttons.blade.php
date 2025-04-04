@@ -1,6 +1,6 @@
 <div>
     <!-- Bottom center: Microphone and Camera buttons -->
-    <div class="{{ $class }}" wire:loading.class="fixed inset-0 bg-gray-500 opacity-50 pointer-events-none">
+    <div class="{{ $class }}" wire:loading.class="opacity-50 pointer-events-none">
         <div @class(['inline-flex' => $addMicGroupButton])>
             @if ($addMicGroupButton)
                 {!! $micSlot ?? '' !!}

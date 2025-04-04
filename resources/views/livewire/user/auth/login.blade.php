@@ -38,7 +38,7 @@
             Login
         </button>
         <div class="my-5">
-            <a href="{{ route('user.auth.register') }}" class="text-blue-400 text-center underline">
+            <a href="{{ route('register') }}" class="text-blue-400 text-center underline">
                 Not Registered Yet?
             </a>
         </div>

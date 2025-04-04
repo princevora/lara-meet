@@ -2,16 +2,16 @@
 
 namespace App\Livewire\User\Meet;
 
-use App\Models\Room;
+use App\Models\Room as RoomModel;
 use Illuminate\Http\Request;
 use Livewire\Component;
 
 class Connect extends Component
 {
     /**
-     * @var Room
+     * @var RoomModel
      */
-    private Room $meeting;
+    private RoomModel $meeting;
 
     /**
      * @var string
@@ -19,11 +19,19 @@ class Connect extends Component
     public string $code;
 
     /**
+     * @var array<int, string>
+     */
+    public array $stages = [
+        1 => AddName::class,
+        2 => Room::class
+    ];
+
+    /**
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Room $meeting
      * @return void
      */
-    public function mount(Request $request, Room $meeting, string $code)
+    public function mount(Request $request, RoomModel $meeting, string $code)
     {
         $this->meeting = $meeting;
         $this->code = $code;
@@ -38,5 +46,10 @@ class Connect extends Component
     public function render()
     {
         return view('livewire.user.meet.connect');
+    }
+
+    public function connectToRoom()
+    {
+        return;
     }
 }

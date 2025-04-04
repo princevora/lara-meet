@@ -84,6 +84,37 @@
 </head>
 
 <body class="text-white min-h-screen flex items-center justify-center font-sans">
+    @auth
+        @php
+            $user = auth()->user();
+        @endphp
+        <div class="absolute top-6 right-16">
+            <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
+                class="text-white bg-gray-800 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-md text-sm px-5 py-2.5 text-center inline-flex items-center">
+                {{ $user->name }}
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
+
+            <!-- Dropdown menu -->
+            <div id="dropdown"
+                class="z-20 hidden bg-gray-900 mt-4 border border-gray-700 divide-y divide-gray-700 rounded-lg shadow-lg w-44">
+                <ul class="py-2 text-sm text-gray-300" aria-labelledby="dropdownDefaultButton">
+                    <li>
+                        <a href="{{ route('logout') }}"
+                            class="block px-4 py-2 hover:bg-gray-800 hover:text-white transition duration-200">
+                            Sign Out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    @endauth
+
     <div class="w-full max-w-4xl p-6">
         <!-- Header -->
         <header class="text-center mb-12">
@@ -141,7 +172,7 @@
                     <h5 class="mb-2 text-2xl font-semibold tracking-tight text-white">Not Logged In Yet?</h5>
                 </a>
                 <p class="mb-3 font-normal text-gray-400">Login to access the Lara Meet App</p>
-                <a href="{{ route('user.auth.login') }}"
+                <a href="{{ route('login') }}"
                     class="inline-flex font-medium items-center text-blue-600 hover:underline">
                     Login Here..
                     <svg class="w-3 h-3 ms-2.5 rtl:rotate-[270deg]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"

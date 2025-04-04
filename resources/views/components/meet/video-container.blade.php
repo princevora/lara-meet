@@ -1,6 +1,6 @@
 <div wire:loading.class='opacity-50 pointer-events-none' class="col-span-2 rounded-lg">
     <!-- Content of the meeting room goes here -->
-    <div class="h-[81%] w-[91%] mt-5 rounded-md relative">
+    <div wire:ignore class="h-[81%] w-[91%] mt-5 rounded-md relative">
 
         <div class="vid-container relative rounded-lg">
             <div class="video-spinner d-none overlay-heading d-flex justify-content-center align-items-center">
