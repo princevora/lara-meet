@@ -4,6 +4,7 @@ namespace App\Livewire\User\Meet;
 
 use App\Events\Meeting\UserJoined;
 use App\Models\Room;
+use App\Models\RoomMember;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Livewire\Attributes\On;
@@ -14,7 +15,7 @@ class Connect extends Component
     /**
      * @var Room
      */
-    private Room $meeting;
+    public Room $meeting;
 
     /**
      * @var string
@@ -33,12 +34,11 @@ class Connect extends Component
      */
     public function mount(Request $request, Room $meeting, string $code)
     {
-        $this->meeting = $meeting;
         $this->room = $code;
         $this->user = auth()->user();
-        $this->meeting
-            ->where('code', $request->code)
-            ->firstOrFail();
+        $this->meeting = $meeting
+                ->where('code', $request->code)
+                ->firstOrFail();
     }
 
     /**
@@ -51,6 +51,12 @@ class Connect extends Component
 
     public function connectToRoom()
     {
+        // store user into the db when they joins..
+        RoomMember::updateOrCreate([
+            'user_id' => $this->user->id,
+            'room_id' => $this->meeting->id
+        ]);
+
         // Dispatch the event when the user is joined
         broadcast(new UserJoined($this->room))->toOthers();
 
