@@ -45,6 +45,6 @@ class StartMeeting extends Component
         $room->code = $code;
         $room->save();
 
-        return $this->redirectRoute('meet.add-name', $code);
+        return $this->redirectRoute('meet.connect', $code);
     }
 }

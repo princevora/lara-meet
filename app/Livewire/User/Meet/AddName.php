@@ -63,7 +63,7 @@ class AddName extends Component
         // Set cookie 
         // $request->cookies->set('name', $this->name);
 
-        // Return redirect to Connection Page
-        return $this->redirect(route('meet.connect', $this->code));
+        // Dispatch an event to handle the new stage
+        $this->dispatch('change-stage', 1);
     }
 }

@@ -26,11 +26,11 @@
         </style>
     @endpush
 
-    <div class="p-4">
+    <div wire:ignore class="p-4">
         <div id="author">
             <a href="#"
                 class="block max-w-xs p-6 border rounded-lg shadow bg-gray-800 border-dark hover:bg-gray-700">
-    
+
                 <div class="h-24 w-24 flex justify-center mx-auto align-items-center bg-gray-600 rounded-full">
                     <h2 class="text-ellipsis font-bold text-gray-300 p-2">
                         HELO
@@ -260,6 +260,7 @@
             $('body').addClass('bg-dark')
 
             $(document).ready(function() {
+
                 if ('Tooltip' in window) {
                     $('div[data-device-related]').on('mouseover', (e) => {
 
@@ -273,7 +274,19 @@
                     })
                 }
             })
+
+            window.addEventListener('load', function() {
+
+                console.log('Initialized');
+                
+
+                Echo.join(`user-joined.{{ request()->code }}`)
+                    .listen('App\\Events\\Meeting\\UserJoined', (e) => {
+                        console.log('User joined from JS', e);
+                    });
+            });
         </script>
+
         <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
     @endpush
 
