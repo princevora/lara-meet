@@ -237,8 +237,8 @@
 
             <!-- Right Section -->
             <div class="d-none d-md-flex align-items-center ms-auto">
-                <button class="btn btn-dark btn-circle me-2" data-drawer-target="drawer-navigation"
-                    data-drawer-show="drawer-navigation" aria-controls="drawer-navigation" title="Show participants">
+                <button class="btn btn-dark btn-circle me-2" data-drawer-target="room-members" data-drawer-show="room-members"
+                data-drawer-placement="right" aria-controls="room-members" title="Show participants">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"
                         class="bi bi-people" style="width: 16px; height: 16px;">
                         <path
@@ -246,7 +246,7 @@
                     </svg>
                 </button>
                 <!-- drawer component -->
-                <livewire:user.meet.room-members :$members/>
+                <livewire:user.meet.room-members />
                 <button class="btn btn-dark btn-circle" data-bs-toggle="tooltip" title="Adjust volume">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"
                         class="bi bi-volume-up" style="width: 16px; height: 16px;">

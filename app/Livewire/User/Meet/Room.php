@@ -3,7 +3,7 @@
 namespace App\Livewire\User\Meet;
 
 use App\Models\RoomMember;
-use DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,12 +25,12 @@ class Room extends Component
      */
     public Authenticatable $user;
 
-    /**
-     * Members collection to be passed in the room members component
-     * 
-     * @var Collection $members
-     */
-    public Collection $members;
+    // /**
+    //  * Members collection to be passed in the room members component
+    //  * 
+    //  * @var Collection|\Illuminate\Pagination\LengthAwarePaginator $members
+    //  */
+    // public Collection|LengthAwarePaginator $members;
 
     /**
      * @param \Illuminate\Http\Request $request
@@ -51,7 +51,7 @@ class Room extends Component
         if (!$this->ensureUserIsInMeeting())
             return redirect()->route('meet.connect', $code);
 
-        $this->members = $this->getMembersBuilder()->get();
+        // $this->members = $this->getMembersBuilder()->paginate(8);
     }
 
 
@@ -66,7 +66,7 @@ class Room extends Component
     #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
     public function userJoined()
     {
-        dd($this->fetchUsers());
+        // dd($this->fetchUsers());
     }
 
     /**
