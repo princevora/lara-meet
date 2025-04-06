@@ -20,8 +20,16 @@ class RoomMember extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Room, RoomMember>
      */
-    public function room()
+    public function room(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Room::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, RoomMember>
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

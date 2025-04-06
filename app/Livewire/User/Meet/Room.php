@@ -26,6 +26,13 @@ class Room extends Component
     public Authenticatable $user;
 
     /**
+     * Members collection to be passed in the room members component
+     * 
+     * @var Collection $members
+     */
+    public Collection $members;
+
+    /**
      * @param \Illuminate\Http\Request $request
      * @param mixed $code
      * @return void
@@ -40,9 +47,11 @@ class Room extends Component
          * else return the user back to the connection page
          * so the Meet App can store it to the database
          */
-         
-        if(!$this->ensureUserIsInMeeting()) 
+
+        if (!$this->ensureUserIsInMeeting())
             return redirect()->route('meet.connect', $code);
+
+        $this->members = $this->getMembersBuilder()->get();
     }
 
 
@@ -71,8 +80,8 @@ class Room extends Component
     private function ensureUserIsInMeeting()
     {
         return $this->getMembersBuilder()
-            ?->where('user_id', $this->user->id)
-            ?->exists() ?? false;
+                ?->where('user_id', $this->user->id)
+                ?->exists() ?? false;
     }
 
     /**
@@ -84,7 +93,7 @@ class Room extends Component
         $members = RoomMember::query();
 
         return $members
-            ->whereHas('room', function($query){
+            ->whereHas('room', function ($query) {
                 $query->where('code', $this->room);
             });
     }
