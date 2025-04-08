@@ -58,12 +58,6 @@ class Room extends Component
 
     private function addUserToTheRoom()
     {
-        // store user into the db when they joins..
-        RoomMember::firstOrCreate([
-            'user_id' => $this->user->id,
-            'room_id' => $this->meeting->id,
-        ]);
-
         // Dispatch the event when the user is joined
         broadcast(new UserJoined($this->room))->toOthers();
     }

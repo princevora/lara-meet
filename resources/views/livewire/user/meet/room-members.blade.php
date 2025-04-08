@@ -1,4 +1,4 @@
-<div x-data="roomMembers" x-init="init()">
+<div wire:init="userJoined" x-data="roomMembers" x-init="init()">
     <!-- drawer component -->
     <div id="room-members"
         class="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform bg-gray-800 w-80 translate-x-full"
