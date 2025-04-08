@@ -1,7 +1,7 @@
 <div wire:init="userJoined" x-data="roomMembers" x-init="init()">
     <!-- drawer component -->
     <div id="room-members"
-        class="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform bg-gray-800 w-80 translate-x-full"
+        class="fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-gray-800 w-80 translate-x-full"
         :class="{ 'transform-none': open, 'translate-x-full': !open }" tabindex="-1" aria-labelledby="drawer-right-label"
         :aria-hidden="!open" aria-modal="true" role="dialog">
         <h5 id="drawer-right-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-400">
@@ -21,6 +21,21 @@
             </svg>
             <span class="sr-only">Close menu</span>
         </button>
+
+
+        <div x-show="isLoading" role="status" class="animate-pulse">
+            <div class="flex items-center justify-center mt-4">
+                <svg class="w-8 h-8 text-gray-200 dark:text-gray-700 me-4" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm0 5a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 13a8.949 8.949 0 0 1-4.951-1.488A3.987 3.987 0 0 1 9 13h2a3.987 3.987 0 0 1 3.951 3.512A8.949 8.949 0 0 1 10 18Z" />
+                </svg>
+                <div class="w-20 h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 me-3"></div>
+                <div class="w-24 h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+            </div>
+            <span class="sr-only">Loading...</span>
+        </div>
+
 
         <div class="py-4 overflow-y-auto">
             <ul class="space-y-2 font-medium" id="member-list">
@@ -47,6 +62,7 @@
                 open: true, // assume drawer is opened by parent logic
                 currentUserId: @json(auth()->user()->id),
                 users: [],
+                isLoading: true,
                 init() {
                     if (window._echoInitDone) return;
                     window._echoInitDone = true;
@@ -56,6 +72,8 @@
                     Echo.join(`user-joined.${roomId}`)
                         .here(users => {
                             this.users = users.map(u => this.formatUser(u));
+
+                            this.isLoading = false;
                         })
                         .joining(user => {
                             if (!this.users.find(u => u.id === user.id)) {
@@ -123,4 +141,7 @@
             });
         }
     </script>
+    
+    <div x-show="open" x-transition.opacity class="fixed inset-0 z-30 bg-gray-900 bg-opacity-50"
+    @click="open = false"></div>
 </div>
