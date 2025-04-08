@@ -59,16 +59,6 @@ class RoomMembers extends Component
         return view('livewire.user.meet.room-members');
     }
 
-    #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
-    #[On('userJoined')]
-    public function userJoined()
-    {
-        RoomMember::firstOrCreate([
-            'user_id' => $this->user->id,
-            'room_id' => $this->meeting->id,
-        ]);
-    }
-
     /**
      * @return \Illuminate\Support\Collection<int, \stdClass>
      */
