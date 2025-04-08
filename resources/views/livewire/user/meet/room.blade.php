@@ -24,6 +24,9 @@
                 text-overflow: ellipsis;
             }
         </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css">
     @endpush
 
     <div wire:ignore class="p-4">
@@ -237,8 +240,9 @@
 
             <!-- Right Section -->
             <div class="d-none d-md-flex align-items-center ms-auto">
-                <button class="btn btn-dark btn-circle me-2" data-drawer-target="room-members" data-drawer-show="room-members"
-                data-drawer-placement="right" aria-controls="room-members" title="Show participants">
+                <button class="btn btn-dark btn-circle me-2" data-drawer-target="room-members"
+                    data-drawer-show="room-members" data-drawer-placement="right" aria-controls="room-members"
+                    title="Show participants">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"
                         class="bi bi-people" style="width: 16px; height: 16px;">
                         <path

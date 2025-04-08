@@ -52,13 +52,10 @@ class Connect extends Component
     public function connectToRoom()
     {
         // store user into the db when they joins..
-        RoomMember::updateOrCreate([
+        RoomMember::firstOrCreate([
             'user_id' => $this->user->id,
             'room_id' => $this->meeting->id
         ]);
-
-        // Dispatch the event when the user is joined
-        broadcast(new UserJoined($this->room))->toOthers();
 
         $this->redirectRoute('meet.room', $this->room);
     }

@@ -2,14 +2,19 @@
 
 namespace App\Livewire\User\Meet;
 
-use App\Models\RoomMember;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Events\Meeting\UserJoined;
+use App\Models\{
+    RoomMember,
+    Room as RoomModel,
+};
+
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+
 use Livewire\Attributes\On;
 use Livewire\Component;
+
 
 class Room extends Component
 {
@@ -25,22 +30,20 @@ class Room extends Component
      */
     public Authenticatable $user;
 
-    // /**
-    //  * Members collection to be passed in the room members component
-    //  * 
-    //  * @var Collection|\Illuminate\Pagination\LengthAwarePaginator $members
-    //  */
-    // public Collection|LengthAwarePaginator $members;
+    public $meetng;
 
     /**
      * @param \Illuminate\Http\Request $request
      * @param mixed $code
      * @return void
      */
-    public function mount(Request $request, $code)
+    public function mount(Request $request, $code, RoomModel $meeting)
     {
         $this->room = $code;
         $this->user = auth()->user();
+        $this->meeting = $meeting
+            ->where('code', $request->code)
+            ->firstOrFail();
 
         /**
          * check if the user has joined the meeting 
@@ -48,10 +51,21 @@ class Room extends Component
          * so the Meet App can store it to the database
          */
 
-        if (!$this->ensureUserIsInMeeting())
-            return redirect()->route('meet.connect', $code);
+        if (!$this->ensureUserIsInMeeting()){
+            $this->addUserToTheRoom();
+        }
+    }
 
-        // $this->members = $this->getMembersBuilder()->paginate(8);
+    private function addUserToTheRoom()
+    {
+        // store user into the db when they joins..
+        RoomMember::firstOrCreate([
+            'user_id' => $this->user->id,
+            'room_id' => $this->meeting->id,
+        ]);
+
+        // Dispatch the event when the user is joined
+        broadcast(new UserJoined($this->room))->toOthers();
     }
 
 
@@ -63,9 +77,10 @@ class Room extends Component
         return view('livewire.user.meet.room');
     }
 
-    #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
+    // #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
     public function userJoined()
     {
+        // $this->refresh();
         // dd($this->fetchUsers());
     }
 

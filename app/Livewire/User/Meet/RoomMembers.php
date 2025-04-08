@@ -3,12 +3,13 @@
 namespace App\Livewire\User\Meet;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Collection;
-use App\Models\RoomMember;
+use App\Models\{
+    Room,
+    RoomMember
+};
 use Illuminate\Http\Request;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\WithPagination;
 
 class RoomMembers extends Component
@@ -22,11 +23,20 @@ class RoomMembers extends Component
      */
     public string $room;
 
+    public $meeting;
+
     /**
      * @var \Illuminate\Contracts\Auth\Authenticatable $user 
      */
     public Authenticatable $user;
-    
+
+    /**
+     * The refresh key will be helpful to refresh the component
+     * 
+     * @var string $refreshKey
+     */
+    public string $refreshKey;
+
     /**
      * @param \Illuminate\Http\Request $request
      * @param mixed $code
@@ -35,6 +45,9 @@ class RoomMembers extends Component
     public function mount(Request $request)
     {
         $this->room = $request->code;
+        $this->meeting = Room::where('code', $this->room)
+            ->firstOrFail();
+
         $this->user = auth()->user();
     }
 
@@ -43,15 +56,17 @@ class RoomMembers extends Component
      */
     public function render()
     {
-        return view('livewire.user.meet.room-members', [
-            'members' => $this->getMembersBuilder()->paginate(8)
-        ]);
+        return view('livewire.user.meet.room-members');
     }
 
     #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
+    #[On('userJoined')]
     public function userJoined()
     {
-        // dd($this->fetchUsers(), 'from the memeber');
+        RoomMember::firstOrCreate([
+            'user_id' => $this->user->id,
+            'room_id' => $this->meeting->id,
+        ]);
     }
 
     /**
