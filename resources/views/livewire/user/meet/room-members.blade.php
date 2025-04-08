@@ -1,8 +1,8 @@
 <div wire:init="userJoined" x-data="roomMembers" x-init="init()">
     <!-- drawer component -->
     <div id="room-members"
-        class="fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-gray-800 w-80 translate-x-full"
-        :class="{ 'transform-none': open, 'translate-x-full': !open }" tabindex="-1" aria-labelledby="drawer-right-label"
+        class="border-l border-l-gray-700 fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-neutral-800 w-80 translate-x-full rounded-l-[1rem]"
+        :class="{ 'transform-none': !open, 'translate-x-full': open }" tabindex="-1" aria-labelledby="drawer-right-label"
         :aria-hidden="!open" aria-modal="true" role="dialog">
         <h5 id="drawer-right-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-400">
             <svg class="w-4 h-4 me-2.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -53,95 +53,96 @@
             </ul>
         </div>
     </div>
+    <div x-show="!open" x-transition.opacity class="fixed inset-0 z-30 bg-gray-900 bg-opacity-50"
+        @click="open = false"></div>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            const title = "Room Update!";
+    @push('scripts')
+        <script>
+            document.addEventListener('alpine:init', () => {
+                const title = "Room Update!";
 
-            Alpine.data('roomMembers', () => ({
-                open: true, // assume drawer is opened by parent logic
-                currentUserId: @json(auth()->user()->id),
-                users: [],
-                isLoading: true,
-                init() {
-                    if (window._echoInitDone) return;
-                    window._echoInitDone = true;
+                Alpine.data('roomMembers', () => ({
+                    open: true, // assume drawer is opened by parent logic
+                    currentUserId: @json(auth()->user()->id),
+                    users: [],
+                    isLoading: true,
+                    init() {
+                        if (window._echoInitDone) return;
+                        window._echoInitDone = true;
 
-                    const roomId = @json($room);
+                        const roomId = @json($room);
 
-                    Echo.join(`user-joined.${roomId}`)
-                        .here(users => {
-                            this.users = users.map(u => this.formatUser(u));
+                        Echo.join(`user-joined.${roomId}`)
+                            .here(users => {
+                                this.users = users.map(u => this.formatUser(u));
 
-                            this.isLoading = false;
-                        })
-                        .joining(user => {
-                            if (!this.users.find(u => u.id === user.id)) {
-                                this.users.push(this.formatUser(user));
-                            }
+                                this.isLoading = false;
+                            })
+                            .joining(user => {
+                                if (!this.users.find(u => u.id === user.id)) {
+                                    this.users.push(this.formatUser(user));
+                                }
 
-                            const message = `User ${user.name} has been Joined 👋`;
-                            const type = 'show';
-                            Livewire.dispatch('userJoined');
+                                const message = `User ${user.name} has been Joined 👋`;
+                                const type = 'show';
+                                Livewire.dispatch('userJoined');
 
-                            toast(title, message);
-                        })
-                        .leaving(user => {
-                            this.users = this.users.filter(u => u.id !== user.id);
+                                toast(title, message);
+                            })
+                            .leaving(user => {
+                                this.users = this.users.filter(u => u.id !== user.id);
 
-                            const message = `User ${user.name} has been left from the meeting 👋`;
-                            const type = 'warning';
+                                const message = `User ${user.name} has been left from the meeting 👋`;
+                                const type = 'warning';
 
-                            toast(title, message);
-                        });
-                },
-                formatUser(user) {
-                    return {
-                        id: user.id,
-                        name: user.name.length > 15 ? user.name.slice(0, 15) + '…' : user.name,
-                        initial: user.name.charAt(0).toUpperCase(),
-                    };
-                }
-            }));
-        });
-
-        window.addEventListener('beforeunload', () => {
-            const formData = new FormData();
-            formData.append('_token', '{{ csrf_token() }}');
-            formData.append('room', '{{ request()->code }}')
-            formData.append('user_id', '{{ auth()->user()->id }}')
-
-            navigator.sendBeacon("{{ route('test') }}", formData);
-        });
-
-
-        function toast(name, message, type = "show") {
-            const backgroundColor = {
-                success: '#166534', // Tailwind green-800
-                error: '#7f1d1d', // Tailwind red-800
-                info: '#1e3a8a', // Tailwind blue-800
-                warning: '#92400e', // Tailwind amber-800
-                show: '#1f2937' // Tailwind gray-800 (fallback)
-            };
-
-            iziToast[type]({
-                title: name,
-                message,
-                position: 'topCenter',
-                timeout: 4000,
-                theme: 'dark',
-                backgroundColor: backgroundColor[type],
-                titleColor: '#4ade80',
-                messageColor: '#d1d5db',
-                iconUrl: null,
-                layout: 2,
-                drag: true,
-                close: false,
-                progressBar: false
+                                toast(title, message);
+                            });
+                    },
+                    formatUser(user) {
+                        return {
+                            id: user.id,
+                            name: user.name.length > 15 ? user.name.slice(0, 15) + '…' : user.name,
+                            initial: user.name.charAt(0).toUpperCase(),
+                        };
+                    }
+                }));
             });
-        }
-    </script>
-    
-    <div x-show="open" x-transition.opacity class="fixed inset-0 z-30 bg-gray-900 bg-opacity-50"
-    @click="open = false"></div>
+
+            window.addEventListener('beforeunload', () => {
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('room', '{{ request()->code }}')
+                formData.append('user_id', '{{ auth()->user()->id }}')
+
+                navigator.sendBeacon("{{ route('test') }}", formData);
+            });
+
+
+            function toast(name, message, type = "show") {
+                const backgroundColor = {
+                    success: '#166534', // Tailwind green-800
+                    error: '#7f1d1d', // Tailwind red-800
+                    info: '#1e3a8a', // Tailwind blue-800
+                    warning: '#92400e', // Tailwind amber-800
+                    show: '#1f2937' // Tailwind gray-800 (fallback)
+                };
+
+                iziToast[type]({
+                    title: name,
+                    message,
+                    position: 'topCenter',
+                    timeout: 4000,
+                    theme: 'dark',
+                    backgroundColor: backgroundColor[type],
+                    titleColor: '#4ade80',
+                    messageColor: '#d1d5db',
+                    iconUrl: null,
+                    layout: 2,
+                    drag: true,
+                    close: false,
+                    progressBar: false
+                });
+            }
+        </script>
+    @endpush
 </div>

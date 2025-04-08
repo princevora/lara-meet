@@ -242,48 +242,64 @@
             <div class="d-none d-md-flex align-items-center ms-auto">
                 <button data-drawer-backdrop="true" class="btn btn-dark btn-circle me-2"
                     data-drawer-target="room-members" data-drawer-show="room-members" data-drawer-placement="right"
-                    aria-controls="room-members" title="Show participants">
+                    aria-controls="room-members" data-bs-toggle="tooltip" title="Show participants">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"
                         class="bi bi-people" style="width: 16px; height: 16px;">
                         <path
                             d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                     </svg>
                 </button>
-                <!-- drawer component -->
-                <livewire:user.meet.room-members />
-                <button class="btn btn-dark btn-circle" data-bs-toggle="tooltip" title="Adjust volume">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18"
-                        class="bi bi-volume-up" style="width: 16px; height: 16px;">
-                        <path
-                            d="M10.836.357a1.978 1.978 0 0 0-2.138.3L3.63 5H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1.63l5.07 4.344a1.985 1.985 0 0 0 2.142.299A1.98 1.98 0 0 0 12 15.826V2.174A1.98 1.98 0 0 0 10.836.357Zm2.728 4.695a1.001 1.001 0 0 0-.29 1.385 4.887 4.887 0 0 1 0 5.126 1 1 0 0 0 1.674 1.095A6.645 6.645 0 0 0 16 9a6.65 6.65 0 0 0-1.052-3.658 1 1 0 0 0-1.384-.29Zm4.441-2.904a1 1 0 0 0-.289 1.384 9.418 9.418 0 0 1 0 11.936 1 1 0 1 0 1.673 1.096A11.387 11.387 0 0 0 20 9a11.387 11.387 0 0 0-2.284-6.548 1 1 0 0 0-1.384-.29Z" />
+                <button data-drawer-backdrop="true" class="btn btn-dark btn-circle me-2"
+                    data-drawer-target="room-chat" data-drawer-show="room-chat" data-drawer-placement="right"
+                    aria-controls="room-chat" data-bs-toggle="tooltip" title="Messages">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                     </svg>
                 </button>
+                <!-- drawer components -->
+                <livewire:user.meet.room-members />
+                <livewire:user.meet.room-chat />
             </div>
         </div>
     </div>
 
     @push('scripts')
-        <script>
-            $('body').addClass('bg-dark')
+        @script
+            <script>
+                const observer = new MutationObserver(() => {
+                    const backdrops = document.querySelectorAll('*[drawer-backdrop]');
+                    backdrops.forEach(backdrop => {
+                        backdrop.classList.add('!bg-neutral-300', 'opacity-5');
+                    });
+                });
 
-            $(document).ready(function() {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                });
 
-                if ('Tooltip' in window) {
-                    $('div[data-device-related]').on('mouseover', (e) => {
 
-                        if (e.target?.closest('button.dropdown-device')?.disabled) {
-                            const tooltipElement = document.getElementById('tooltip-top');
-                            const buttonElement = e.target.closest('button');
+                $(document).ready(function() {
 
-                            const tooltip = new Tooltip(tooltipElement, buttonElement);
-                            tooltip.show();
-                        }
-                    })
-                }
-            })
-        </script>
+                    if ('Tooltip' in window) {
+                        $('div[data-device-related]').on('mouseover', (e) => {
 
-        <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
+                            if (e.target?.closest('button.dropdown-device')?.disabled) {
+                                const tooltipElement = document.getElementById('tooltip-top');
+                                const buttonElement = e.target.closest('button');
+
+                                const tooltip = new Tooltip(tooltipElement, buttonElement);
+                                tooltip.show();
+                            }
+                        })
+                    }
+                })
+            </script>
+
+@endscript
+<script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
     @endpush
 
 </div>
