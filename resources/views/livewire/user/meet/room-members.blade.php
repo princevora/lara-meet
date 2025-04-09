@@ -1,7 +1,7 @@
 <div wire:init="userJoined" x-data="roomMembers" x-init="init()">
     <!-- drawer component -->
     <div id="room-members"
-        class="border-l border-l-gray-700 fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-neutral-800 w-80 translate-x-full rounded-l-[1rem]"
+        class="shadow-2xl border-l border-l-gray-700 fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-neutral-800 w-80 translate-x-full rounded-l-[1rem]"
         :class="{ 'transform-none': !open, 'translate-x-full': open }" tabindex="-1" aria-labelledby="drawer-right-label"
         :aria-hidden="!open" aria-modal="true" role="dialog">
         <h5 id="drawer-right-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-400">

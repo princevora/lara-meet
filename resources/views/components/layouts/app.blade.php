@@ -32,7 +32,7 @@
     
 </head>
 
-<body class="!bg-neutral-900 h-[10px]">
+<body class="dark h-[10px]">
 
     {{ $slot }}
 

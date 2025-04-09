@@ -1,6 +1,6 @@
 <div>
     <div id="room-chat"
-        class="border-l border-l-gray-700 fixed top-0 right-0 z-40 h-screen p-4 overflow-hidden transition-transform bg-neutral-800 w-[30rem] rounded-l-[2.3rem] flex flex-col">
+        class="border-l border-l-gray-700 fixed top-0 right-0 z-40 h-screen p-4 overflow-hidden transition-transform bg-neutral-800 w-[30rem] rounded-l-[2.3rem] flex flex-col shadow-2xl">
 
         <!-- Header -->
         <h5 id="drawer-right-label" class="inline-flex items-center mb-4 text-base font-semibold text-neutral-400">
@@ -29,18 +29,21 @@
 
         <!-- Chat Input -->
         <div class="pt-3 border-t border-neutral-800">
-            <form class="relative">
-                <input type="text"
+            <form wire:submit.prevent="sendMessage" class="relative">
+                <input wire:model="message" type="text"
                     class="p-3 block w-full border border-neutral-700 rounded-full text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 bg-neutral-800 text-neutral-300 placeholder-neutral-500"
                     placeholder="Chat.." />
                 <div class="absolute top-1/2 right-2 -translate-y-1/2">
-                    <button type="button"
+                    <button type="submit"
                         class="h-10 w-10 inline-flex justify-center items-center text-sm font-semibold rounded-full text-neutral-400 hover:text-white bg-neutral-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        <svg wire:loading.remove wire:target='sendMessage' xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                         </svg>
+                        <div wire:loading wire:target="sendMessage" class="animate-spin inline-block size-4 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500" role="status" aria-label="loading">
+                            <span class="sr-only">Loading...</span>
+                          </div>
                     </button>
                 </div>
             </form>

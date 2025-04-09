@@ -268,6 +268,8 @@
     @push('scripts')
         @script
             <script>
+                $('body').addClass('bg-dark')
+ 
                 const observer = new MutationObserver(() => {
                     const backdrops = document.querySelectorAll('*[drawer-backdrop]');
                     backdrops.forEach(backdrop => {
@@ -297,9 +299,8 @@
                     }
                 })
             </script>
-
-@endscript
-<script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
+        @endscript
+        <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
     @endpush
 
 </div>
