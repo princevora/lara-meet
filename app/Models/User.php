@@ -55,4 +55,20 @@ class User extends Authenticatable
     {
         return $this->hasOne(RoomMember::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<RoomChat, User>
+     */
+    public function sent_room_chats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RoomChat::class, 'sender_id', 'id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<RoomChat, User>
+     */
+    public function received_room_chats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RoomChat::class, 'receiver_id', 'id');
+    }
 }
