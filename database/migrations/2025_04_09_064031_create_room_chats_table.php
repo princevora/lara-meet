@@ -22,11 +22,6 @@ return new class extends Migration {
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
-            $table->foreignUuid('receiver_id')
-                ->constrained('users')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
             $table->longText('message')->default('');
 
             $table->timestamps();

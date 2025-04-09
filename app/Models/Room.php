@@ -20,7 +20,7 @@ class Room extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<RoomChat, Room>
      */
-    public function room_chats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function chats(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(RoomChat::class, 'room_id', 'id');
     }

@@ -260,7 +260,7 @@
                 </button>
                 <!-- drawer components -->
                 <livewire:user.meet.room-members />
-                <livewire:user.meet.room-chat />
+                <livewire:user.meet.room-chat :$room :$user/>
             </div>
         </div>
     </div>

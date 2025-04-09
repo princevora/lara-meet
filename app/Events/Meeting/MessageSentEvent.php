@@ -7,19 +7,32 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageSentEvent
+class MessageSentEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+    
+    /**
+     * @var $message 
+     */
+    public $message;
+    
+    /**
+     * @var $room 
+     */
+    public $room;
 
     /**
-     * Create a new event instance.
+     * @param mixed $room
+     * @param mixed $message
      */
-    public function __construct()
+    public function __construct($room, $message)
     {
-        //
+        $this->message = $message;
+        $this->room = $room;
     }
 
     /**
@@ -30,7 +43,18 @@ class MessageSentEvent
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel("message-sent.{$this->room}"),
+        ];
+    }
+
+    /**
+     * @return array{message: mixed}
+     */
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message,
+            'room' => $this->room
         ];
     }
 }

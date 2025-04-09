@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class RoomChat extends Model
 {
     use HasUuids; 
+ 
+    /**
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'room_id',
+        'sender_id',
+        'message'
+    ];
     
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Room, RoomChat>
@@ -23,13 +32,5 @@ class RoomChat extends Model
     public function sender(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id', 'id');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Room, RoomChat>
-     */
-    public function receiver(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(User::class, 'receiver_id', 'id');
     }
 }
