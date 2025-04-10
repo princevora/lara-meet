@@ -1,4 +1,4 @@
-<div wire:init="fetchMessages">
+<div wire:poll.60s wire:init="fetchMessages">
     @push('style')
         <style>
             @tailwind utilities;
@@ -87,8 +87,7 @@
                             @if ($message->sender_id !== $user->id)
                                 <div class="flex gap-2">
                                     @if ($wasPreviousMessageFromSameSender)
-                                        <p
-                                            title="{{ $message->sender->name }}"
+                                        <p title="{{ $message->sender->name }}"
                                             class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center font-semibold">
                                             {{ $message->sender->name[0] }}
                                         </p>
