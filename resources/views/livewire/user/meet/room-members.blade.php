@@ -53,8 +53,6 @@
             </ul>
         </div>
     </div>
-    <div x-show="!open" x-transition.opacity class="fixed inset-0 z-30 bg-gray-900 bg-opacity-50"
-        @click="open = false"></div>
 
     @push('scripts')
         <script>

@@ -249,7 +249,7 @@
                             d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                     </svg>
                 </button>
-                <button data-drawer-backdrop="true" class="btn btn-dark btn-circle me-2"
+                <button wire:click="dispatchFetchMessages" data-drawer-backdrop="true" class="btn btn-dark btn-circle me-2"
                     data-drawer-target="room-chat" data-drawer-show="room-chat" data-drawer-placement="right"
                     aria-controls="room-chat" data-bs-toggle="tooltip" title="Messages">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

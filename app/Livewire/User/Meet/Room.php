@@ -30,7 +30,15 @@ class Room extends Component
      */
     public Authenticatable $user;
 
+    /**
+     * @var RoomModel $meeting
+     */
     public $meetng;
+
+    /**
+     * @var bool $initializedMessages
+     */
+    public bool $initializedMessages = false;
 
     /**
      * @param \Illuminate\Http\Request $request
@@ -71,11 +79,13 @@ class Room extends Component
         return view('livewire.user.meet.room');
     }
 
-    // #[On('echo-presence:user-joined.{room},Meeting\UserJoined')]
-    public function userJoined()
+    public function dispatchFetchMessages()
     {
-        // $this->refresh();
-        // dd($this->fetchUsers());
+        if(!$this->initializedMessages){
+            $this->dispatch('fetchMessages');
+
+            $this->initializedMessages = true;
+        }
     }
 
     /**

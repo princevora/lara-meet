@@ -58,6 +58,7 @@ class RoomChat extends Component
         return view('livewire.user.meet.room-chat');
     }
 
+    #[On('fetchMessages')]
     public function fetchMessages()
     {
         $this->chats = $this->meeting->chats;

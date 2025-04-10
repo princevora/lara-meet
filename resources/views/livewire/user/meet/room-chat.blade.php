@@ -1,4 +1,4 @@
-<div wire:poll.60s wire:init="fetchMessages">
+<div wire:poll.60s>
     @push('style')
         <style>
             @tailwind utilities;
@@ -49,8 +49,8 @@
         </style>
     @endpush
 
-    <div id="room-chat"
-        class="border-l border-l-gray-700 fixed top-0 right-0 z-40 h-screen p-4 overflow-x-hidden overflow-y-auto transition-transform bg-neutral-800 w-[30rem] rounded-l-[2.3rem] flex flex-col shadow-2xl">
+    <div wire:ignore.self id="room-chat"
+        class="border-l border-l-gray-700 fixed top-0 right-0 z-40 h-screen p-4 overflow-x-hidden overflow-y-auto transition-transform translate-x-full bg-neutral-800 w-[30rem] rounded-l-[2.3rem] flex flex-col shadow-2xl">
 
         <!-- Header -->
         <h5 id="drawer-right-label" class="inline-flex items-center mb-4 text-base font-semibold text-neutral-400">
