@@ -7,7 +7,7 @@
   <img alt="Visitors" src="https://visitor-badge.laobi.icu/badge?page_id=princevora.lara-meet" />
   <img alt="Laravel" src="https://img.shields.io/badge/Laravel-10-red" />
   <img alt="Livewire" src="https://img.shields.io/badge/Livewire-enabled-blue" />
-  <img alt="License" src="https://img.shields.io/github/license/princevora/lara-meet" />
+  <img alt="MIT License" src="https://img.shields.io/badge/License-MIT-green.svg" />
 </p>
 
 ---
