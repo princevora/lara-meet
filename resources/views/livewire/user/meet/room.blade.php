@@ -30,20 +30,7 @@
     @endpush
 
     <div wire:ignore class="p-4">
-        <div id="author">
-            <a href="#"
-                class="block max-w-xs p-6 border rounded-lg shadow bg-gray-800 border-dark hover:bg-gray-700">
-
-                <div class="h-24 w-24 flex justify-center mx-auto align-items-center bg-gray-600 rounded-full">
-                    <h2 class="text-ellipsis font-bold text-gray-300 p-2">
-                        HELO
-                    </h2>
-                </div>
-                <p class="text-center font-medium fs-5 text-gray-300 mt-2 dark:text-gray-400">
-                    HELO
-                </p>
-            </a>
-        </div>
+        
     </div>
 
     <div class="d-flex justify-content-center">

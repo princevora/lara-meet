@@ -362,7 +362,7 @@ export const handleMediaChange = (e, media = 0) => {
     }
 };
 
-const dispatchEvent = (event) => {
+export const dispatchEvent = (event) => {
     // Create Event.
     const customEvent = new CustomEvent(event);
 
