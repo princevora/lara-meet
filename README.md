@@ -40,7 +40,6 @@
 - Composer
 - Node.js and npm
 - MySQL or any other supported DB
-- A [Pusher](https://pusher.com) account
 
 ### Steps
 
