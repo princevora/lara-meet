@@ -51,27 +51,37 @@ export const modifyButton = (enable = true, device) => {
     })
 }
 
-getPermissions().then(async ([micState, cameraState]) => {
-    if (micState === 'granted') {
-        modifyButton(true, 'microphone');
-        enumerateSpeakerDevice();
-        handleGrantedMedia(0);
-    }
-    else {
-        $('.main-icon').eq(0).addClass('hidden');
-        $('.forbidden').eq(0).removeClass('hidden');
-    }
+export const initializeMediaDevices = async () => {
+    return getPermissions().then(async ([micState, cameraState]) => {
+        let micStream, cameraStream = null; 
 
-    if (cameraState === 'granted') {
-        modifyButton(true, 'camera');
-        handleGrantedMedia(1);
-    }
-    else {
-        $('.main-icon').eq(1).addClass('hidden');
-        $('.forbidden').eq(1).removeClass('hidden');
-        $('.heading').removeClass('hidden');
-    }
-});
+        if (micState === 'granted') {
+            modifyButton(true, 'microphone');
+            enumerateSpeakerDevice();
+
+            const [micData, camerData] = await handleGrantedMedia(0);
+            micStream = micData;
+        }
+        else {
+            $('.main-icon').eq(0).addClass('hidden');
+            $('.forbidden').eq(0).removeClass('hidden');
+        }
+        
+        if (cameraState === 'granted') {
+            modifyButton(true, 'camera');
+            
+            const [micData, camerData] = await handleGrantedMedia(1);
+            cameraStream = camerData;
+        }
+        else {
+            $('.main-icon').eq(1).addClass('hidden');
+            $('.forbidden').eq(1).removeClass('hidden');
+            $('.heading').removeClass('hidden');
+        }
+
+        return [micStream, cameraStream];
+    });
+} 
 
 const enumerateSpeakerDevice = async () => {
     await navigator.
@@ -85,3 +95,4 @@ const enumerateSpeakerDevice = async () => {
 
 // Expose openModal globally
 window.openModal = openModal;
+window.initializeMediaDevices = initializeMediaDevices;

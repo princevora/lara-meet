@@ -64,12 +64,20 @@ class Room extends Component
         }
     }
 
+    /**
+     * @return void
+     */
     private function addUserToTheRoom()
     {
         // Dispatch the event when the user is joined
         broadcast(new UserJoined($this->room))->toOthers();
     }
 
+    #[On('peerIdInitiated')]
+    public function receivePeerId($id)
+    {
+        $this->dispatch('startCall', $id);
+    }
 
     /**
      * @return \Illuminate\Contracts\View\View
@@ -79,6 +87,16 @@ class Room extends Component
         return view('livewire.user.meet.room');
     }
 
+    /**
+     * Helps Dyanmic message fetching thorugh the Events And Listeners
+     * It won't load message untill the action button has been clicked 
+     * 
+     * Then the fetchMessage will be dispatched and Handeled in the RoomChat Component
+     * It won't load the messages with the skeleton, if its loded previously 
+     * which is determined in the initializeMessage Property Of the Current Component
+     * 
+     * @return void
+     */
     public function dispatchFetchMessages()
     {
         if(!$this->initializedMessages){

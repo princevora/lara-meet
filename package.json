@@ -17,6 +17,9 @@
         "vite": "^6.2"
     },
     "dependencies": {
-        "flowbite": "^2.5.2"
+        "@browsery/util": "^0.12.6-r2",
+        "flowbite": "^2.5.2",
+        "peerjs": "^1.5.4",
+        "util": "^0.12.5"
     }
 }

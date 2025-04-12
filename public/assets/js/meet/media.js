@@ -3,6 +3,8 @@ import { handleMediaEnd, ignores, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
 
+const ice_server = "stun:stun.l.google.com:19302";
+
 export const deviceConfig = {
     mic: { stream: null },
     camera: { stream: null },
@@ -22,14 +24,15 @@ export const preloadImage = (url) => {
     }).appendTo('head');
 };
 
-/**
- * @var {Audio} 
- */
-let a = null;
-
 export const toggleMedia = async (media) => {
     try {
+        if(navigator.mediaDevices.getUserMedia == undefined)
+            throw new Error("Browser Doesn't Support Media Streaming..");
+
+        // get the strea using the navigator
         const stream = await navigator.mediaDevices.getUserMedia(media);
+
+        // return the steram to the caller
         return stream;
     } catch (error) {
         showError('Unable to access media devices.');
@@ -37,19 +40,44 @@ export const toggleMedia = async (media) => {
 };
 
 export const handleGrantedMedia = async (media = 0) => {
-    const expectedMedia = media == 0 ? 'mic' : 'camera';
-
-    if (media == 0 && !ignoreChange.mic) {
-        await loadSound();
-    }
-
-    if (media == 1 && !ignoreChange.camera) {
-        await loadVideoSrc()
-    }
-
-    const buttons = document.querySelectorAll('.btn-circle');
-    buttons[media].onclick = () => toggleMediaUI(media);
-    await cookieStore.set(`${expectedMedia}-allowed`, 1);
+    return new Promise((resolve, reject) => {
+        const expectedMedia = media == 0 ? 'mic' : 'camera';
+        let micStream, cameraStream = null;
+        
+        const tasks = [];
+    
+        const process = () => {
+            if (media == 0 && !ignoreChange.mic) {
+                tasks.push(
+                    loadSound().then(stream => {
+                        micStream = stream;
+                    })
+                );
+            }
+            
+            if (media == 1 && !ignoreChange.camera) {
+                tasks.push(
+                    loadVideoSrc().then(stream => {
+                        cameraStream = stream;
+                    })
+                )
+            }
+            
+            Promise.all(tasks)
+                .then(() => {
+                    const buttons = document.querySelectorAll('.btn-circle');
+                    buttons[media].onclick = () => toggleMediaUI(media);
+    
+                    return cookieStore.set(`${expectedMedia}-allowed`, 1);
+                })
+                .then(() => {
+                    resolve([micStream, cameraStream])
+                })
+                .catch(reject);
+        }
+    
+        process();
+    })
 };
 
 /**
@@ -149,7 +177,6 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
 
             const stream = await toggleMedia(media);
             devicePerms.mic.hasPerms = true;
-
             deviceConfig.mic.stream = stream;
 
             // Handle Audio End
@@ -192,12 +219,16 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
                 }
             });
 
-            resolve(true);
+            resolve(stream);
         } catch (error) {
             reject(false);
         }
     })
-        .then(() => updateMediaUI(0))
+        .then((stream) => {
+            updateMediaUI(0);
+
+            return stream;
+        })
         .catch(() => showError('Microphone access not granted'))
         .finally(() => $('.btn-circle').eq(0).attr('disabled', false));
 };
@@ -248,7 +279,7 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                     detail: { stream }  // Pass `stream` inside `detail`
                 });
                 document.dispatchEvent(roomProfileEvent);
-                
+
                 const videoElement = document.getElementById('videoElement');
                 videoElement.srcObject = stream;
                 videoElement.play();
@@ -286,7 +317,7 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                     await loadVideoSrc();
                 });
 
-                resolve(true);
+                resolve(stream);
             } else {
                 reject(false);
             }
@@ -294,7 +325,11 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
             reject(false);
         }
     })
-        .then(() => updateMediaUI(1))
+        .then((stream) => {
+            updateMediaUI(1);
+
+            return stream;
+        })
         .catch(() => {
             $('.heading').removeClass('hidden');
             showError('Camera Access Not Granted');
@@ -312,6 +347,7 @@ export const requestMicrophone = async () => {
     if (micState !== 'granted' && micState === 'prompt') {
         try {
             await loadSound();
+            
         } catch {
             showError('Microphone access not granted.');
         }

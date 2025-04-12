@@ -30,7 +30,7 @@
     @endpush
 
     <div wire:ignore class="p-4">
-        
+
     </div>
 
     <div class="d-flex justify-content-center">
@@ -236,28 +236,36 @@
                             d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                     </svg>
                 </button>
-                <button wire:click="dispatchFetchMessages" data-drawer-backdrop="true" class="btn btn-dark btn-circle me-2"
-                    data-drawer-target="room-chat" data-drawer-show="room-chat" data-drawer-placement="right"
-                    aria-controls="room-chat" data-bs-toggle="tooltip" title="Messages">
+                <button wire:click="dispatchFetchMessages" data-drawer-backdrop="true"
+                    class="btn btn-dark btn-circle me-2" data-drawer-target="room-chat" data-drawer-show="room-chat"
+                    data-drawer-placement="right" aria-controls="room-chat" data-bs-toggle="tooltip"
+                    title="Messages">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-6">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
                     </svg>
                 </button>
-                  
+
                 <!-- drawer components -->
                 <livewire:user.meet.room-members />
-                <livewire:user.meet.room-chat :$room :$user/>
+                <livewire:user.meet.room-chat :$room :$user />
             </div>
         </div>
     </div>
-
+    
     @push('scripts')
         @script
             <script>
+                document.addEventListener('sendMicrophoneBlog', function(data){
+                    const audio = new Audio(data.detail.objectUrl);
+                    audio.play().catch(e => {
+                        console.log(e);
+                    });     
+                    console.log(data.detail.objectUrl);
+                });
                 $('body').addClass('bg-dark')
- 
+
                 const observer = new MutationObserver(() => {
                     const backdrops = document.querySelectorAll('*[drawer-backdrop]');
                     backdrops.forEach(backdrop => {

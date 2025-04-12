@@ -31,4 +31,26 @@
             </div>
         </div>
     </div>
+
+    @push('script')
+        @script
+            <script>
+                if(!window.Livewire) return;
+
+                Livewire.hook('component.init', async ({ component }) => {
+                    /**
+                     * initializeMediaDevices()
+                     * 
+                     * FILE: js/main.js
+                     * 
+                     * Call the Following function so we can directly initialize the media devices
+                     * it will automatically listen for the changes in the audio or video
+                     * if the permissions are granted.
+                     * */
+
+                     initializeMediaDevices()
+                });
+            </script>
+        @endscript
+    @endpush
 </div>

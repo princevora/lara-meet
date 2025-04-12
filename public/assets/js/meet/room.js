@@ -8,6 +8,8 @@ const events = {
     broadcastAudio
 };
 
+function broadcastAudio (){}
+
 // Initialize the button onclick event.
 popoverBtn.onclick = screenCapture;
 
