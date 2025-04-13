@@ -14,7 +14,8 @@ class RoomMember extends Model
      */
     protected $fillable = [
         'user_id',
-        'room_id'
+        'room_id',
+        'peer_id'
     ];
 
     /**

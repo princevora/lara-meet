@@ -60,11 +60,12 @@ class RoomMembers extends Component
     }
 
     #[On('userJoined')]
-    public function userJoined()
+    public function userJoined($peer_id)
     {
         RoomMember::firstOrCreate([
             'user_id' => $this->user->id,
             'room_id' => $this->meeting->id,
+            'peer_id' => $peer_id
         ]);
     }
 

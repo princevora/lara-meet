@@ -11,71 +11,55 @@ const events = {
     broadcastAudio
 };
 
-function initializeRoom() {
-    initializeMediaDevices().then(([micStream, cameraStream]) => {
-        if (Alpine == undefined || Livewire == undefined || Echo == undefined) 
-            return;
+async function initializeRoom() {
+    // Listen for the frontend event when the alpine will be fully initiazlied
+    const [micStream, cameraStream] = await initializeMediaDevices(false);
 
-        // Listen for the frontend event when the alpine will be fully initiazlied
-        waitForAlpineInit(() => {
-            const instance = window.roomMembersInstance;
-            const users = instance.users;
-            const room_id = instance.room_id;
+    if (Alpine == undefined || Livewire == undefined || Echo == undefined)
+        return;
 
-            const peerConfig = {
-                config: {
-                    iceServers: [
-                        {
-                            urls: ice_server
-                        }
-                    ]
-                }
-            };
+    waitForAlpineInit(() => {
+        const instance = window.roomMembersInstance;
+        const users = instance.users;
+        const room_id = instance.room;
+        let peer_ids = [];
 
-            // start the peer only when the users is greater then 1
-            // if (users.length > 1) {
-                const peer = new Peer(peerConfig);
-                
-                // Make call offer for every users When we are open to do so.
-                peer.on('open', peer_id => {
-                    Livewire.dispatch('makeVoiceCall', { peer_id });
-                })
+        const peerConfig = {
+            config: {
+                iceServers: [
+                    { url: 'stun:stun.l.google.com:19302' }
+                ]
+            }
+        };
 
-                peer.on('call', call => {
-                    navigator.mediaDevices.getUserMedia({
-                        video: true
-                    }).then(stream => {
-                        call.answer(stream);
-                    })
-                })
+        const peer = new Peer(peerConfig);
 
-                // Listen For Laravel Echo Events
-                Echo.private(`voice-call.${room_id}`)
-                    .listen('.OfferVoiceCall',  (event) => {
-                        const { peer_id } = event;
-
-                        const call = peer.call(peer_id, null);
-
-                        call.on('stream', stream => {
-                            const vid = document.createElement('video');
-                            console.log(vid);
-                            
-                            vid.srcObject = stream;
-                            vid.controls = true;
-                            vid.play();
-
-                             // Make sure to append the video element to the DOM
-                             document.body.appendChild(vid);
-                        })
-                    });
-            // }
+        peer.on('open', peer_id => {
+            // this will help to broadcast our peer id to others so they can call us.
+            Livewire.dispatch('add-user-to-room', { peer_id });
         })
+
+        document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
+            const user_peer = {
+                id: user.user_id,
+                peer_id: user.peer_id
+            }
+
+            peer_ids.push(user_peer);
+        });
+
+        document.addEventListener('event:peer-left', ({ detail: { user } }) => {
+            peer_ids = peer_ids.filter(u => u.id !== user.user_id);
+
+            console.log(peer_ids);
+            
+        });
     });
 }
 
 function waitForAlpineInit(callback, interval = 100) {
     const check = () => {
-        if (window.roomMembersInstance.users.length > 0) {
+        if (window.roomMembersInstance?.users.length > 0) {
             callback();
         } else {
             setTimeout(check, interval);

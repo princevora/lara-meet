@@ -1,4 +1,4 @@
-<div wire:init="userJoined" x-data="roomMembers" x-init="init()">
+<div x-data="roomMembers" x-init="init()">
     <!-- drawer component -->
     <div id="room-members"
         class="shadow-2xl border-l border-l-gray-700 fixed top-0 right-0 z-50 h-screen p-4 overflow-y-auto transition-transform bg-neutral-800 w-80 translate-x-full rounded-l-[1rem]"
@@ -64,6 +64,7 @@
                     currentUserId: @json(auth()->user()->id),
                     users: [],
                     room_id: null,
+                    room: null,
                     isLoading: true,
                     init() {
                         if (window._echoInitDone) return;
@@ -71,10 +72,22 @@
                         window.roomMembersInstance = this;
                        
                         this.room_id = @json($meeting->id);
-                        const roomId = @json($room);
+                        this.room = @json($room);
+                        const roomId = @json($room); 
 
                         Echo.join(`user-joined.${roomId}`)
+                            .listen('.Meeting/UserJoined', user => {
+                                const event = new CustomEvent('event:peer-joined', {
+                                    detail: {
+                                        user
+                                    }
+                                });
+
+                                document.dispatchEvent(event);
+                            })
                             .here(users => {
+                                console.log(users);
+                                
                                 this.users = users.map(u => this.formatUser(u));
 
                                 this.isLoading = false;
@@ -91,6 +104,14 @@
                             })
                             .leaving(user => {
                                 this.users = this.users.filter(u => u.id !== user.id);
+
+                                const event = new CustomEvent('event:peer-left', {
+                                    detail: {
+                                        user
+                                    }
+                                });
+
+                                document.dispatchEvent(event);
 
                                 const message = `User ${user.name} has been left from the meeting 👋`;
                                 const type = 'warning';

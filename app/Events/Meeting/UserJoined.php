@@ -23,11 +23,27 @@ class UserJoined implements ShouldBroadcastNow
     public $room;
 
     /**
-     * Create a new event instance.
+     * @var string $peer_id
      */
-    public function __construct($room)
+    public string $peer_id;
+
+    /**
+     * The user id will be helpful in the frontend side
+     * to find, remove or adding a pear id in diffrent scenarios (Self - Event, Leaving)
+     * 
+     * @var string $user_id
+     */
+    public string $user_id;
+
+    /**
+     * @param mixed $room
+     * @param string $peer_id The (UUID) peer id provided by the PeerJS Server
+     */
+    public function __construct($user_id, $room, string $peer_id)
     {
+        $this->user_id = $user_id;
         $this->room = $room;
+        $this->peer_id = $peer_id;
     }
 
     /**
@@ -40,5 +56,10 @@ class UserJoined implements ShouldBroadcastNow
         return [
             new PresenceChannel("user-joined.{$this->room}"),
         ];
+    }
+
+    public function broadcastAs(): string 
+    {
+        return 'Meeting/UserJoined';
     }
 }

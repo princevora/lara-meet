@@ -37,7 +37,7 @@ export const toggleMedia = async (media) => {
     }
 };
 
-export const handleGrantedMedia = async (media = 0) => {
+export const handleGrantedMedia = async (media = 0, implementOnDemoSide = true) => {
     return new Promise((resolve, reject) => {
         const expectedMedia = media == 0 ? 'mic' : 'camera';
         let micStream, cameraStream = null;
@@ -47,7 +47,7 @@ export const handleGrantedMedia = async (media = 0) => {
         const process = () => {
             if (media == 0 && !ignoreChange.mic) {
                 tasks.push(
-                    loadSound().then(stream => {
+                    loadSound(false, null).then(stream => {
                         micStream = stream;
                     })
                 );
@@ -55,7 +55,7 @@ export const handleGrantedMedia = async (media = 0) => {
             
             if (media == 1 && !ignoreChange.camera) {
                 tasks.push(
-                    loadVideoSrc().then(stream => {
+                    loadVideoSrc(false, null, implementOnDemoSide).then(stream => {
                         cameraStream = stream;
                     })
                 )
@@ -231,7 +231,7 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
         .finally(() => $('.btn-circle').eq(0).attr('disabled', false));
 };
 
-export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
+export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDemoSide = true) => {
     $('.btn-circle').eq(1).attr('disabled', true)
 
     return new Promise(async (resolve, reject) => {
@@ -278,9 +278,11 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                 });
                 document.dispatchEvent(roomProfileEvent);
 
-                const videoElement = document.getElementById('videoElement');
-                videoElement.srcObject = stream;
-                videoElement.play();
+                if(implementOnDemoSide) {
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = stream;
+                    videoElement.play();
+                }
 
 
                 document.addEventListener('stopcameraTrack', () => {
@@ -312,14 +314,14 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                 });
 
                 document.addEventListener('resumecameraTrack', async () => {
-                    await loadVideoSrc();
+                    await loadVideoSrc(changeTrack, deviceId, implementOnDemoSide);
                 });
 
                 resolve(stream);
             } else {
                 reject(false);
             }
-        } catch {
+        } catch(e) {
             reject(false);
         }
     })
@@ -328,7 +330,7 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
 
             return stream;
         })
-        .catch(() => {
+        .catch((e) => {
             $('.heading').removeClass('hidden');
             showError('Camera Access Not Granted');
         })

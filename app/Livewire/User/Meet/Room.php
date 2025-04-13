@@ -53,25 +53,18 @@ class Room extends Component
         $this->meeting = $meeting
             ->where('code', $request->code)
             ->firstOrFail();
-
-        /**
-         * check if the user has joined the meeting 
-         * else return the user back to the connection page
-         * so the Meet App can store it to the database
-         */
-
-        if (!$this->ensureUserIsInMeeting()){
-            $this->addUserToTheRoom();
-        }
     }
 
     /**
      * @return void
      */
-    private function addUserToTheRoom()
+    #[On('add-user-to-room')]
+    public function addUserToTheRoom($peer_id)
     {
         // Dispatch the event when the user is joined
-        broadcast(new UserJoined($this->room))->toOthers();
+        broadcast(new UserJoined($this->user->id, $this->room, $peer_id))->toOthers();
+
+        $this->dispatch('userJoined', $peer_id)->to(RoomMembers::class);
     }
 
     #[On('makeVoiceCall')]
