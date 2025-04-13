@@ -1,14 +1,91 @@
+import { initializeMediaDevices } from './main.js';
+
 let stream = null;
 let popover;
 let popoverOpenable = false;
 
 const btn = $('#screen-capture');
 const popoverBtn = document.getElementById('screen-capture');
+const ice_server = "stun:stun.l.google.com:19302";
 const events = {
     broadcastAudio
 };
 
-function broadcastAudio (){}
+function initializeRoom() {
+    initializeMediaDevices().then(([micStream, cameraStream]) => {
+        if (Alpine == undefined || Livewire == undefined || Echo == undefined) 
+            return;
+
+        // Listen for the frontend event when the alpine will be fully initiazlied
+        waitForAlpineInit(() => {
+            const instance = window.roomMembersInstance;
+            const users = instance.users;
+            const room_id = instance.room_id;
+
+            const peerConfig = {
+                config: {
+                    iceServers: [
+                        {
+                            urls: ice_server
+                        }
+                    ]
+                }
+            };
+
+            // start the peer only when the users is greater then 1
+            // if (users.length > 1) {
+                const peer = new Peer(peerConfig);
+                
+                // Make call offer for every users When we are open to do so.
+                peer.on('open', peer_id => {
+                    Livewire.dispatch('makeVoiceCall', { peer_id });
+                })
+
+                peer.on('call', call => {
+                    navigator.mediaDevices.getUserMedia({
+                        video: true
+                    }).then(stream => {
+                        call.answer(stream);
+                    })
+                })
+
+                // Listen For Laravel Echo Events
+                Echo.private(`voice-call.${room_id}`)
+                    .listen('.OfferVoiceCall',  (event) => {
+                        const { peer_id } = event;
+
+                        const call = peer.call(peer_id, null);
+
+                        call.on('stream', stream => {
+                            const vid = document.createElement('video');
+                            console.log(vid);
+                            
+                            vid.srcObject = stream;
+                            vid.controls = true;
+                            vid.play();
+
+                             // Make sure to append the video element to the DOM
+                             document.body.appendChild(vid);
+                        })
+                    });
+            // }
+        })
+    });
+}
+
+function waitForAlpineInit(callback, interval = 100) {
+    const check = () => {
+        if (window.roomMembersInstance.users.length > 0) {
+            callback();
+        } else {
+            setTimeout(check, interval);
+        }
+    }
+
+    check();
+}
+
+function broadcastAudio() { }
 
 // Initialize the button onclick event.
 popoverBtn.onclick = screenCapture;
@@ -20,11 +97,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (cameraState == 'granted') {
         document.addEventListener('roomProfile', (e) => {
-            console.log(e.detail.stream);
         });
     }
 
-    if(micState == 'granted'){
+    if (micState == 'granted') {
         const broadcastAudio = dispatchEvent('broadcastAudio');
     }
 });
@@ -230,3 +306,4 @@ function makePopoverElement() {
 window.screenCapture = screenCapture;
 window.handleClick = handleClick;
 window.stopPresentation = stopPresentation;
+window.initializeRoom = initializeRoom;

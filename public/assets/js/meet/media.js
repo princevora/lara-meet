@@ -3,8 +3,6 @@ import { handleMediaEnd, ignores, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
 
-const ice_server = "stun:stun.l.google.com:19302";
-
 export const deviceConfig = {
     mic: { stream: null },
     camera: { stream: null },

@@ -1,4 +1,4 @@
-<div class="">
+<div id="room" class="">
     @push('style')
         <style>
             .bg-blue:hover {
@@ -255,8 +255,21 @@
     </div>
     
     @push('scripts')
+        <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
         @script
             <script>
+                Livewire.hook('component.init', ({component}) => {
+                    const roomContainer = document.getElementById('room');
+                    const roomContainerID = roomContainer.getAttribute('wire:id');
+
+                    // Initialize only once if the wire room container id 
+                    // and the initialized component id is the same
+
+                    if(roomContainerID === component.id) {
+                        return initializeRoom();
+                    }
+                })
+
                 document.addEventListener('sendMicrophoneBlog', function(data){
                     const audio = new Audio(data.detail.objectUrl);
                     audio.play().catch(e => {
@@ -296,7 +309,6 @@
                 })
             </script>
         @endscript
-        <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
     @endpush
 
 </div>

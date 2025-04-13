@@ -17,4 +17,4 @@ Route::prefix('user')->group(function () {
     });
 });
 
-Route::post('test', [MemberPresenceController::class, 'handleUserLeft'])->name('test');
+Route::post('meet/user-left', [MemberPresenceController::class, 'handleUserLeft'])->name('user-left');

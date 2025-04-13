@@ -63,11 +63,14 @@
                     open: true, // assume drawer is opened by parent logic
                     currentUserId: @json(auth()->user()->id),
                     users: [],
+                    room_id: null,
                     isLoading: true,
                     init() {
                         if (window._echoInitDone) return;
                         window._echoInitDone = true;
-
+                        window.roomMembersInstance = this;
+                       
+                        this.room_id = @json($meeting->id);
                         const roomId = @json($room);
 
                         Echo.join(`user-joined.${roomId}`)
@@ -83,7 +86,6 @@
 
                                 const message = `User ${user.name} has been Joined 👋`;
                                 const type = 'show';
-                                Livewire.dispatch('userJoined');
 
                                 toast(title, message);
                             })
@@ -112,7 +114,7 @@
                 formData.append('room', '{{ request()->code }}')
                 formData.append('user_id', '{{ auth()->user()->id }}')
 
-                navigator.sendBeacon("{{ route('test') }}", formData);
+                navigator.sendBeacon("{{ route('user-left') }}", formData);
             });
 
 

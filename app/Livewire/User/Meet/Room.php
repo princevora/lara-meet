@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User\Meet;
 
+use App\Events\OfferVoiceCall;
 use App\Events\Meeting\UserJoined;
 use App\Models\{
     RoomMember,
@@ -33,7 +34,7 @@ class Room extends Component
     /**
      * @var RoomModel $meeting
      */
-    public $meetng;
+    public $meeting;
 
     /**
      * @var bool $initializedMessages
@@ -73,10 +74,13 @@ class Room extends Component
         broadcast(new UserJoined($this->room))->toOthers();
     }
 
-    #[On('peerIdInitiated')]
-    public function receivePeerId($id)
+    #[On('makeVoiceCall')]
+    public function makeVoiceCall($peer_id)
     {
-        $this->dispatch('startCall', $id);
+        broadcast(new OfferVoiceCall(
+            $peer_id, 
+            $this->meeting->id
+        ))->toOthers();
     }
 
     /**
