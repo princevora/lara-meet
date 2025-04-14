@@ -67,6 +67,14 @@ class RoomMembers extends Component
             'room_id' => $this->meeting->id,
             'peer_id' => $peer_id
         ]);
+
+        // return back the current members with peer ids
+        $members = $this->getMembersBuilder()
+            ->where('user_id', '!=', $this->user->id)
+            ->get();
+
+        $this->dispatch('existing-members', ['members' => $members]);
+        $this->dispatch('app-initialized');
     }
 
     /**

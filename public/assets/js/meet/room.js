@@ -34,10 +34,54 @@ async function initializeRoom() {
 
         const peer = new Peer(peerConfig);
 
+        document.addEventListener('existing-members', (event) => {
+            const data = event.detail[0];
+
+            data.members.forEach(member => {
+                const user_peer = {
+                    id: member.user_id,
+                    peer_id: member.peer_id
+                }
+
+                peer_ids.push(user_peer);
+            });
+
+            if (micStream) {
+                peer_ids.forEach(user => {
+                    peer.call(user.peer_id, micStream);
+                })
+            }
+
+        });
+
+        peer.on('call', call => {
+            console.log('Got a call');
+
+            call.answer();
+
+            call.on('stream', rStream => {
+                const audio = document.createElement("audio");
+                audio.srcObject = rStream;
+                audio.autoplay = true;
+                audio.controls = true;
+                audio.id = "test";
+                console.log(rStream);
+                
+                document.body.appendChild(audio);
+            })
+
+            call.on('close', () => {
+                // Remove the audio element
+                const audio = document.getElementById('test');
+                if (audio) audio.remove();
+            });
+        })
+
         peer.on('open', peer_id => {
             // this will help to broadcast our peer id to others so they can call us.
             Livewire.dispatch('add-user-to-room', { peer_id });
         })
+
 
         document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
             const user_peer = {
@@ -45,14 +89,21 @@ async function initializeRoom() {
                 peer_id: user.peer_id
             }
 
+
             peer_ids.push(user_peer);
+            console.log('New Joined', peer_ids);
         });
 
         document.addEventListener('event:peer-left', ({ detail: { user } }) => {
-            peer_ids = peer_ids.filter(u => u.id !== user.user_id);
+            peer_ids = peer_ids.filter(u => {
+                return u.id !== user.id;
+            });
+        });
 
-            console.log(peer_ids);
-            
+        window.addEventListener('beforeunload', () => {
+            if (peer && !peer.destroyed) {
+                peer.destroy(); // This will close all connections and notify others
+            }
         });
     });
 }

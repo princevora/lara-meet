@@ -1,4 +1,7 @@
 <div id="room" class="">
+    @if (!$isLoaded)
+        <x-meet.room-loader />
+    @endif
     @push('style')
         <style>
             .bg-blue:hover {
@@ -30,7 +33,6 @@
     @endpush
 
     <div wire:ignore class="p-4">
-
     </div>
 
     <div class="d-flex justify-content-center">
@@ -86,7 +88,8 @@
                                 class="absolute z-10 invisible inline-block w-auto text-sm text-gray-400 transition-opacity duration-300 rounded-lg shadow-sm opacity-0 border-gray-600 bg-gray-800">
                                 <div
                                     class="px-3 py-2 bg-gray-100 border-b rounded-t-lg dark:border-gray-600 bg-transparent">
-                                    <h3 class="font-semibold text-gray-900 dark:text-white">Change Microphone And Speaker
+                                    <h3 class="font-semibold text-gray-900 dark:text-white">Change Microphone And
+                                        Speaker
                                         Device
                                     </h3>
                                 </div>
@@ -171,7 +174,8 @@
                                 class="absolute z-10 invisible inline-block w-auto text-sm text-gray-400 transition-opacity duration-300 rounded-lg shadow-sm opacity-0 border-gray-600 bg-gray-800">
                                 <div
                                     class="px-3 py-2 bg-gray-100 border-b rounded-t-lg dark:border-gray-600 bg-transparent">
-                                    <h3 class="font-semibold text-gray-900 dark:text-white">Change Microphone And Speaker
+                                    <h3 class="font-semibold text-gray-900 dark:text-white">Change Microphone And
+                                        Speaker
                                         Device
                                     </h3>
                                 </div>
@@ -253,28 +257,30 @@
             </div>
         </div>
     </div>
-    
+
     @push('scripts')
         <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
         @script
             <script>
-                Livewire.hook('component.init', ({component}) => {
+                Livewire.hook('component.init', ({
+                    component
+                }) => {
                     const roomContainer = document.getElementById('room');
                     const roomContainerID = roomContainer.getAttribute('wire:id');
 
                     // Initialize only once if the wire room container id 
                     // and the initialized component id is the same
 
-                    if(roomContainerID === component.id) {
+                    if (roomContainerID === component.id) {
                         return initializeRoom();
                     }
                 })
 
-                document.addEventListener('sendMicrophoneBlog', function(data){
+                document.addEventListener('sendMicrophoneBlog', function(data) {
                     const audio = new Audio(data.detail.objectUrl);
                     audio.play().catch(e => {
                         console.log(e);
-                    });     
+                    });
                     console.log(data.detail.objectUrl);
                 });
                 $('body').addClass('bg-dark')

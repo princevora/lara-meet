@@ -11,7 +11,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('user-joined.{room}', function ($user, $room): array {
     // Find or fail for the room code in room model
-    Room::where('code', $room)->firstOrFail();
+    $room = Room::where('code', $room)->firstOrFail();
 
     return ['id' => $user->id, 'name' => $user->name];
 });

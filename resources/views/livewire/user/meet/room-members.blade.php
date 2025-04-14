@@ -86,10 +86,8 @@
                                 document.dispatchEvent(event);
                             })
                             .here(users => {
-                                console.log(users);
-                                
                                 this.users = users.map(u => this.formatUser(u));
-
+                                
                                 this.isLoading = false;
                             })
                             .joining(user => {
