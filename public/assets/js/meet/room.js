@@ -86,25 +86,24 @@ function initializeRoom() {
                     peer.destroy(); // This will close all connections and notify others
                 }
             });
-        });
+            
+            const data = event.detail[0];
 
-        const data = event.detail[0];
-
-        data.members.forEach(member => {
-            const user_peer = {
-                id: member.user_id,
-                peer_id: member.peer_id
+            data.members.forEach(member => {
+                const user_peer = {
+                    id: member.user_id,
+                    peer_id: member.peer_id
+                }
+    
+                peer_ids.push(user_peer);
+            });
+    
+            if (micStream) {
+                peer_ids.forEach(user => {
+                    peer.call(user.peer_id, micStream);
+                })
             }
-
-            peer_ids.push(user_peer);
         });
-
-        if (micStream) {
-            peer_ids.forEach(user => {
-                peer.call(user.peer_id, micStream);
-            })
-        }
-
     });
 }
 

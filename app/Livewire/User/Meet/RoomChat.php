@@ -39,11 +39,17 @@ class RoomChat extends Component
     public ?Collection $chats;
 
     /**
+     * @var string $room
+     */
+    public string $room;
+
+    /**
      * @param mixed $room
      * @return void
      */
     public function mount(string $room, $user, Room $meeting)
     {
+        $this->room = $room;
         $this->user = $user;
         $this->meeting = $meeting
             ->where('code', $room)

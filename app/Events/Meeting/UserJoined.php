@@ -60,6 +60,6 @@ class UserJoined implements ShouldBroadcastNow
 
     public function broadcastAs(): string 
     {
-        return 'Meeting/UserJoined';
+        return 'UserJoined';
     }
 }

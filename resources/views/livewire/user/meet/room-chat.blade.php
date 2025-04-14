@@ -88,7 +88,7 @@
                                 <div class="flex gap-2">
                                     @if ($wasPreviousMessageFromSameSender)
                                         <p title="{{ $message->sender->name }}"
-                                            class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center font-semibold">
+                                            class="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center font-semibold relative">
                                             {{ $message->sender->name[0] }}
                                         </p>
                                     @endif

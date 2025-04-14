@@ -76,7 +76,7 @@
                         const roomId = @json($room); 
 
                         Echo.join(`user-joined.${roomId}`)
-                            .listen('.Meeting/UserJoined', user => {
+                            .listen('.UserJoined', user => {
                                 const event = new CustomEvent('event:peer-joined', {
                                     detail: {
                                         user
