@@ -1,4 +1,4 @@
-<div>
+<div wire:ignore>
     <!-- Bottom center: Microphone and Camera buttons -->
     <div class="{{ $class }}" wire:loading.class="opacity-50 pointer-events-none">
         <div @class(['inline-flex' => $addMicGroupButton])>

@@ -74,7 +74,6 @@ class RoomMembers extends Component
             ->get();
 
         $this->dispatch('existing-members', ['members' => $members]);
-        $this->dispatch('app-initialized');
     }
 
     /**

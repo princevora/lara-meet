@@ -24,7 +24,7 @@ export const preloadImage = (url) => {
 
 export const toggleMedia = async (media) => {
     try {
-        if(navigator.mediaDevices.getUserMedia == undefined)
+        if (navigator.mediaDevices.getUserMedia == undefined)
             throw new Error("Browser Doesn't Support Media Streaming..");
 
         // get the strea using the navigator
@@ -37,13 +37,13 @@ export const toggleMedia = async (media) => {
     }
 };
 
-export const handleGrantedMedia = async (media = 0, implementOnDemoSide = true) => {
+export const handleGrantedMedia = async (media = 0) => {
     return new Promise((resolve, reject) => {
         const expectedMedia = media == 0 ? 'mic' : 'camera';
         let micStream, cameraStream = null;
-        
+
         const tasks = [];
-    
+
         const process = () => {
             if (media == 0 && !ignoreChange.mic) {
                 tasks.push(
@@ -52,20 +52,20 @@ export const handleGrantedMedia = async (media = 0, implementOnDemoSide = true) 
                     })
                 );
             }
-            
+
             if (media == 1 && !ignoreChange.camera) {
                 tasks.push(
-                    loadVideoSrc(false, null, implementOnDemoSide).then(stream => {
+                    loadVideoSrc(false, null).then(stream => {
                         cameraStream = stream;
                     })
                 )
             }
-            
+
             Promise.all(tasks)
                 .then(() => {
                     const buttons = document.querySelectorAll('.btn-circle');
                     buttons[media].onclick = () => toggleMediaUI(media);
-    
+
                     return cookieStore.set(`${expectedMedia}-allowed`, 1);
                 })
                 .then(() => {
@@ -73,7 +73,7 @@ export const handleGrantedMedia = async (media = 0, implementOnDemoSide = true) 
                 })
                 .catch(reject);
         }
-    
+
         process();
     })
 };
@@ -231,7 +231,7 @@ export const loadSound = (changeTrack = false, deviceId = null) => {
         .finally(() => $('.btn-circle').eq(0).attr('disabled', false));
 };
 
-export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDemoSide = true) => {
+export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
     $('.btn-circle').eq(1).attr('disabled', true)
 
     return new Promise(async (resolve, reject) => {
@@ -251,8 +251,8 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDe
                 }
             }
 
-            $('.video-spinner').removeClass('d-none');
-            $('.heading').addClass('hidden');
+            if($('.video-spinner').length) $('.video-spinner').removeClass('d-none');
+            if($('.heading').length) $('.heading').addClass('hidden');
 
             const stream = await toggleMedia(media);
 
@@ -278,19 +278,21 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDe
                 });
                 document.dispatchEvent(roomProfileEvent);
 
-                if(implementOnDemoSide) {
-                    const videoElement = document.getElementById('videoElement');
+                const videoElement = document.getElementById('videoElement');
+
+                if (videoElement) {
                     videoElement.srcObject = stream;
                     videoElement.play();
                 }
-
 
                 document.addEventListener('stopcameraTrack', () => {
                     if (tracks.readyState == 'live') {
                         // Disable previous track
                         disabledTrack();
 
-                        videoElement.srcObject = null;
+                        if (videoElement) {
+                            videoElement.srcObject = null;
+                        }
 
                         // Change the icons and button
                         if (tracks.readyState == 'ended') {
@@ -314,14 +316,14 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDe
                 });
 
                 document.addEventListener('resumecameraTrack', async () => {
-                    await loadVideoSrc(changeTrack, deviceId, implementOnDemoSide);
+                    await loadVideoSrc(changeTrack, deviceId);
                 });
 
                 resolve(stream);
             } else {
                 reject(false);
             }
-        } catch(e) {
+        } catch (e) {
             reject(false);
         }
     })
@@ -331,12 +333,22 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null, implementOnDe
             return stream;
         })
         .catch((e) => {
-            $('.heading').removeClass('hidden');
+            if ($('.heading').length) {
+                $('.heading').removeClass('hidden');
+            }
+
             showError('Camera Access Not Granted');
         })
         .finally(() => {
-            $('.video-spinner').addClass('d-none')
-            $('.btn-circle').eq(1).attr('disabled', false)
+            if ($('.video-spinner').length) {
+                $('.video-spinner').addClass('d-none');
+            }
+
+            const btn = $('.btn-circle').eq(1);
+            
+            if (btn.length) {
+                btn.attr('disabled', false);
+            }
         });
 };
 
@@ -347,7 +359,7 @@ export const requestMicrophone = async () => {
     if (micState !== 'granted' && micState === 'prompt') {
         try {
             await loadSound();
-            
+
         } catch {
             showError('Microphone access not granted.');
         }
@@ -388,6 +400,8 @@ export const handleMediaChange = (e, media = 0) => {
             btns[media].onclick = () => toggleMediaUI(media);
         } else if (state === 'denied' || state === 'prompt') {
             modifyButton(false, expectedDevice)
+            console.log('rem,oved from media');
+
             $(`#warn-${expectedMedia}`).removeClass('hidden');
             btns[media].onclick = (event) => openModal(event, media);
         }

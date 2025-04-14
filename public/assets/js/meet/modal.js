@@ -1,7 +1,9 @@
 import { requestMicrophone, requestCamera } from './media.js';
 
 export const showError = (message) => {
-    $('#error-context').removeClass('hidden').text(message);
+    if($('#error-context').length){
+        $('#error-context').removeClass('hidden').text(message);
+    }
 };
 
 export const openModal = (event, type) => {

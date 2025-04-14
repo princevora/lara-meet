@@ -88,7 +88,6 @@ export const listMediaDevicesUI = (devices, media = 0) => {
 
     const deviceContainer = document.getElementById(`${expectedDeviceKind}-option-container`);
     let expectedDevice = media == 0 ? 'mic' : (media == 1 ? 'camera' : 'speaker');
-    
     let streamingDevice = {
         deviceId: 'default'
     };

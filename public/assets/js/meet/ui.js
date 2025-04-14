@@ -38,7 +38,7 @@ export const handleMediaEnd = (media = 0, videoElement = null) => {
     
     $('.main-icon').eq(media).addClass('hidden');
     
-    if(!ignores.camera.warn) {
+    if(!ignores[expectedDevice].warn) {        
         $(`#warn-${expectedMedia}`).removeClass('hidden');
     }
 

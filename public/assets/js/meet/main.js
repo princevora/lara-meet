@@ -51,7 +51,7 @@ export const modifyButton = (enable = true, device) => {
     })
 }
 
-export const initializeMediaDevices = async (implementOnDemoSide = true) => {
+export const initializeMediaDevices = async () => {
     return getPermissions().then(async ([micState, cameraState]) => {
         let micStream, cameraStream = null; 
 
@@ -59,7 +59,7 @@ export const initializeMediaDevices = async (implementOnDemoSide = true) => {
             modifyButton(true, 'microphone');
             enumerateSpeakerDevice();
 
-            const [micData, camerData] = await handleGrantedMedia(0, implementOnDemoSide);
+            const [micData, camerData] = await handleGrantedMedia(0);
             micStream = micData;
         }
         else {
@@ -70,7 +70,7 @@ export const initializeMediaDevices = async (implementOnDemoSide = true) => {
         if (cameraState === 'granted') {
             modifyButton(true, 'camera');
             
-            const [micData, camerData] = await handleGrantedMedia(1, implementOnDemoSide);
+            const [micData, camerData] = await handleGrantedMedia(1);
             cameraStream = camerData;
         }
         else {

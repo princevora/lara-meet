@@ -11,100 +11,100 @@ const events = {
     broadcastAudio
 };
 
-async function initializeRoom() {
+function initializeRoom() {
+    const peerConfig = {
+        config: {
+            iceServers: [
+                { url: 'stun:stun.l.google.com:19302' }
+            ]
+        }
+    };
+
+    const peer = new Peer(peerConfig);
+
+    peer.on('open', peer_id => {
+        // this will help to broadcast our peer id to others so they can call us.
+        Livewire.dispatch('add-user-to-room', { peer_id });
+    })
+
     // Listen for the frontend event when the alpine will be fully initiazlied
-    const [micStream, cameraStream] = await initializeMediaDevices(false);
 
     if (Alpine == undefined || Livewire == undefined || Echo == undefined)
         return;
 
-    waitForAlpineInit(() => {
-        const instance = window.roomMembersInstance;
-        const users = instance.users;
-        const room_id = instance.room;
-        let peer_ids = [];
-
-        const peerConfig = {
-            config: {
-                iceServers: [
-                    { url: 'stun:stun.l.google.com:19302' }
-                ]
-            }
-        };
-
-        const peer = new Peer(peerConfig);
-
-        document.addEventListener('existing-members', (event) => {
-            const data = event.detail[0];
-
-            data.members.forEach(member => {
-                const user_peer = {
-                    id: member.user_id,
-                    peer_id: member.peer_id
-                }
-
-                peer_ids.push(user_peer);
-            });
-
-            if (micStream) {
-                peer_ids.forEach(user => {
-                    peer.call(user.peer_id, micStream);
+    document.addEventListener('existing-members', async (event) => {
+        const [micStream, cameraStream] = await initializeMediaDevices(false);
+    
+        waitForAlpineInit(() => {
+            const instance = window.roomMembersInstance;
+            const users = instance.users;
+            const room_id = instance.room;
+            let peer_ids = []; 
+    
+            peer.on('call', call => {
+                console.log('Got a call');
+    
+                call.answer();
+    
+                call.on('stream', rStream => {
+                    const audio = document.createElement("audio");
+                    audio.srcObject = rStream;
+                    audio.autoplay = true;
+                    audio.controls = true;
+                    audio.id = "test";
+                    console.log(rStream);
+                    
+                    document.body.appendChild(audio);
                 })
-            }
-
+    
+                call.on('close', () => {
+                    // Remove the audio element
+                    const audio = document.getElementById('test');
+                    if (audio) audio.remove();
+                });
+            })
+    
+            document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
+                const user_peer = {
+                    id: user.user_id,
+                    peer_id: user.peer_id
+                }
+    
+    
+                peer_ids.push(user_peer);
+                console.log('New Joined', peer_ids);
+            });
+    
+            document.addEventListener('event:peer-left', ({ detail: { user } }) => {
+                peer_ids = peer_ids.filter(u => {
+                    return u.id !== user.id;
+                });
+            });
+    
+            window.addEventListener('beforeunload', () => {
+                if (peer && !peer.destroyed) {
+                    peer.destroy(); // This will close all connections and notify others
+                }
+            });
         });
 
-        peer.on('call', call => {
-            console.log('Got a call');
+        const data = event.detail[0];
 
-            call.answer();
-
-            call.on('stream', rStream => {
-                const audio = document.createElement("audio");
-                audio.srcObject = rStream;
-                audio.autoplay = true;
-                audio.controls = true;
-                audio.id = "test";
-                console.log(rStream);
-                
-                document.body.appendChild(audio);
-            })
-
-            call.on('close', () => {
-                // Remove the audio element
-                const audio = document.getElementById('test');
-                if (audio) audio.remove();
-            });
-        })
-
-        peer.on('open', peer_id => {
-            // this will help to broadcast our peer id to others so they can call us.
-            Livewire.dispatch('add-user-to-room', { peer_id });
-        })
-
-
-        document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
+        data.members.forEach(member => {
             const user_peer = {
-                id: user.user_id,
-                peer_id: user.peer_id
+                id: member.user_id,
+                peer_id: member.peer_id
             }
-
 
             peer_ids.push(user_peer);
-            console.log('New Joined', peer_ids);
         });
 
-        document.addEventListener('event:peer-left', ({ detail: { user } }) => {
-            peer_ids = peer_ids.filter(u => {
-                return u.id !== user.id;
-            });
-        });
+        if (micStream) {
+            peer_ids.forEach(user => {
+                peer.call(user.peer_id, micStream);
+            })
+        }
 
-        window.addEventListener('beforeunload', () => {
-            if (peer && !peer.destroyed) {
-                peer.destroy(); // This will close all connections and notify others
-            }
-        });
     });
 }
 
@@ -125,20 +125,20 @@ function broadcastAudio() { }
 // Initialize the button onclick event.
 popoverBtn.onclick = screenCapture;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const { getPermissions } = await import('./permissions.js'); // Lazy import
-    const { deviceConfig, dispatchEvent } = await import('./media.js'); // Lazy import
-    const [micState, cameraState] = await getPermissions();
+// document.addEventListener('DOMContentLoaded', async () => {
+//     const { getPermissions } = await import('./permissions.js'); // Lazy import
+//     const { deviceConfig, dispatchEvent } = await import('./media.js'); // Lazy import
+//     const [micState, cameraState] = await getPermissions();
 
-    if (cameraState == 'granted') {
-        document.addEventListener('roomProfile', (e) => {
-        });
-    }
+//     if (cameraState == 'granted') {
+//         document.addEventListener('roomProfile', (e) => {
+//         });
+//     }
 
-    if (micState == 'granted') {
-        const broadcastAudio = dispatchEvent('broadcastAudio');
-    }
-});
+//     if (micState == 'granted') {
+//         const broadcastAudio = dispatchEvent('broadcastAudio');
+//     }
+// });
 
 function showDate() {
     const date = new Date();
@@ -256,7 +256,6 @@ function getDisplay() {
         try {
             // get screen
             const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true });
-            console.log(stream);
 
             // Resolve stream 
             resolve(stream);

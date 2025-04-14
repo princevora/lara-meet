@@ -63,6 +63,14 @@ class Room extends Component
             ->firstOrFail();
     }
 
+     /**
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function render()
+    {
+        return view('livewire.user.meet.room');
+    }
+
     /**
      * @return void
      */
@@ -92,14 +100,6 @@ class Room extends Component
             $peer_id, 
             $this->meeting->id
         ))->toOthers();
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function render()
-    {
-        return view('livewire.user.meet.room');
     }
 
     /**
