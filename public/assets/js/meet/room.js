@@ -7,9 +7,6 @@ let popoverOpenable = false;
 const btn = $('#screen-capture');
 const popoverBtn = document.getElementById('screen-capture');
 const ice_server = "stun:stun.l.google.com:19302";
-const events = {
-    broadcastAudio
-};
 
 function initializeRoom() {
     const peerConfig = {
@@ -36,6 +33,7 @@ function initializeRoom() {
         const [micStream, cameraStream] = await initializeMediaDevices(false);
 
         waitForAlpineInit(() => {
+            const data = event.detail[0];
             const instance = window.roomMembersInstance;
             const users = instance.users;
             const room_id = instance.room;
@@ -44,27 +42,27 @@ function initializeRoom() {
             const handleRemoteCameraStream = (stream) => {
                 const video = document.createElement('video');
                 video.srcObject = stream;
-                video.controls = true;
                 video.id = "test";
                 video.autoplay = true;
                 video.muted = true; // helpful for autoplay
                 video.playsInline = true;
-            
+
                 video.play().catch(err => {
                     console.error('Playback failed:', err);
                 });
-            
+
                 document.body.appendChild(video);
             }
-            
+
             const handleRemoteAudioStream = (stream) => {
                 const audio = document.createElement('audio');
                 audio.srcObject = stream;
-                audio.id = "test";
                 audio.autoplay = true;
-                audio.controls = true;
-                audio.play();
+                audio.playsInline = true;
                 document.body.appendChild(audio);
+
+                audio.muted = false;
+                audio.play();
             }
 
             const identifyStreamType = (stream) => {
@@ -107,7 +105,6 @@ function initializeRoom() {
                     peer_id: user.peer_id
                 }
 
-
                 peer_ids.push(user_peer);
             });
 
@@ -122,8 +119,6 @@ function initializeRoom() {
                     peer.destroy(); // This will close all connections and notify others
                 }
             });
-
-            const data = event.detail[0];
 
             data.members.forEach(member => {
                 const user_peer = {
@@ -154,8 +149,6 @@ function waitForAlpineInit(callback, interval = 100) {
 
     check();
 }
-
-function broadcastAudio() { }
 
 // Initialize the button onclick event.
 popoverBtn.onclick = screenCapture;
