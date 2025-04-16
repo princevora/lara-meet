@@ -6,12 +6,11 @@
     x-transition:leave="transition ease-in-out duration-500"
     x-transition:leave-start="opacity-100 transform scale-100 blur-0"
     x-transition:leave-end="opacity-0 transform scale-105 blur-sm"
-
     style="z-index: 9999"
     class="h-screen relative w-full bg-white flex flex-col justify-center items-center space-y-4"
 >
     <div class="loader"></div>
-    <div class="text-xl font-semibold text-gray-700 font-poppins">Lara Meet By @princevora</div>
+    <div class="text-xl font-semibold text-gray-700 font-poppins my-2">Lara Meet By @princevora</div>
 </div>
 
 

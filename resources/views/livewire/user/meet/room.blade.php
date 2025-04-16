@@ -1,7 +1,6 @@
 <div id="room" class="">
-    @if (!$isLoaded)
-        <x-meet.room-loader :isLoaded="$isLoaded" />
-    @endif
+    <x-meet.room-loader />
+
     @push('style')
         <style>
             .bg-blue:hover {
@@ -145,9 +144,7 @@
     </div>
 
     @push('scripts')
-        @if (!$isLoaded)
-            <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
-        @endif
+        <script src="{{ asset('assets/js/meet/room.js') }}" type="module"></script>
         @script
             <script>
                 Livewire.hook('component.init', ({

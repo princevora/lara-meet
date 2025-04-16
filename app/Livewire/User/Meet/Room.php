@@ -42,14 +42,6 @@ class Room extends Component
     public bool $initializedMessages = false;
 
     /**
-     * is Loaded Variable will help to showcase the loading section
-     * and only shows the main ui when the requests are completed for initializing Lara Meet
-     * 
-     * @var bool $isLoaded
-     */
-    public bool $isLoaded = false;
-
-    /**
      * @param \Illuminate\Http\Request $request
      * @param mixed $code
      * @return void
@@ -81,16 +73,6 @@ class Room extends Component
         broadcast(new UserJoined($this->user->id, $this->room, $peer_id))->toOthers();
 
         $this->dispatch('userJoined', $peer_id)->to(RoomMembers::class);
-    }
-
-    /**
-     * Sets the isLoaded property to true to hide the loader
-     * 
-     * @return void
-     */
-    private function markAsLoaded()
-    {
-        $this->isLoaded = true;
     }
 
     #[On('makeVoiceCall')]
