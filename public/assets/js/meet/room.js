@@ -34,59 +34,95 @@ function initializeRoom() {
 
     document.addEventListener('existing-members', async (event) => {
         const [micStream, cameraStream] = await initializeMediaDevices(false);
-    
+
         waitForAlpineInit(() => {
             const instance = window.roomMembersInstance;
             const users = instance.users;
             const room_id = instance.room;
-            let peer_ids = []; 
-    
+            let peer_ids = [];
+
+            const handleRemoteCameraStream = (stream) => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.controls = true;
+                video.id = "test";
+                video.autoplay = true;
+                video.muted = true; // helpful for autoplay
+                video.playsInline = true;
+            
+                video.play().catch(err => {
+                    console.error('Playback failed:', err);
+                });
+            
+                document.body.appendChild(video);
+            }
+            
+            const handleRemoteAudioStream = (stream) => {
+                const audio = document.createElement('audio');
+                audio.srcObject = stream;
+                audio.id = "test";
+                audio.autoplay = true;
+                audio.controls = true;
+                audio.play();
+                document.body.appendChild(audio);
+            }
+
+            const identifyStreamType = (stream) => {
+                const callbacks = {
+                    video: handleRemoteCameraStream,
+                    audio: handleRemoteAudioStream
+                }
+
+                for (const track of stream.getTracks()) {
+                    if (track && callbacks[track.kind]) {
+                        return callbacks[track.kind];
+                    }
+                }
+            }
+
             peer.on('call', call => {
-                console.log('Got a call');
-    
                 call.answer();
-    
+
                 call.on('stream', rStream => {
-                    const audio = document.createElement("audio");
-                    audio.srcObject = rStream;
-                    audio.autoplay = true;
-                    audio.controls = true;
-                    audio.id = "test";
-                    console.log(rStream);
-                    
-                    document.body.appendChild(audio);
+                    if (rStream && rStream instanceof MediaStream) {
+                        // call the identifyStreamType function
+                        // and call back the function which is being called. 
+                        identifyStreamType(rStream)(rStream);
+                    }
                 })
-    
+
                 call.on('close', () => {
-                    // Remove the audio element
-                    const audio = document.getElementById('test');
+                    const audio = document.getElementsByTagName('audio');
                     if (audio) audio.remove();
+
+                    // Remove video element if it exists
+                    const video = document.getElementsByTagName('video');
+                    if (video) video.remove();
                 });
             })
-    
+
             document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
                 const user_peer = {
                     id: user.user_id,
                     peer_id: user.peer_id
                 }
-    
-    
+
+
                 peer_ids.push(user_peer);
-                console.log('New Joined', peer_ids);
             });
-    
+
             document.addEventListener('event:peer-left', ({ detail: { user } }) => {
                 peer_ids = peer_ids.filter(u => {
                     return u.id !== user.id;
                 });
             });
-    
+
             window.addEventListener('beforeunload', () => {
                 if (peer && !peer.destroyed) {
                     peer.destroy(); // This will close all connections and notify others
                 }
             });
-            
+
             const data = event.detail[0];
 
             data.members.forEach(member => {
@@ -94,13 +130,13 @@ function initializeRoom() {
                     id: member.user_id,
                     peer_id: member.peer_id
                 }
-    
+
                 peer_ids.push(user_peer);
             });
-    
-            if (micStream) {
+
+            if (micStream || cameraStream) {
                 peer_ids.forEach(user => {
-                    peer.call(user.peer_id, micStream);
+                    peer.call(user.peer_id, micStream || cameraStream);
                 })
             }
         });
