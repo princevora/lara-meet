@@ -33,52 +33,39 @@ function initializeRoom() {
         call.on('stream', remoteStream => {
             _remoteStream = remoteStream;
 
-            if (remoteStream && remoteStream instanceof MediaStream) {
-                const videoTracks = remoteStream.getVideoTracks();
-                const audioTracks = remoteStream.getAudioTracks();
-
-                if (videoTracks.length) {
-                    const videoStream = new MediaStream(videoTracks);
-                    handleRemoteCameraStream(videoStream);
-                }
-
-                if (audioTracks.length) {
-                    const audioStream = new MediaStream(audioTracks);
-                    handleRemoteAudioStream(audioStream);
-                }
-            }
+            identifyStreamType(remoteStream);
         })
 
-        call.on('close', () => {
-            console.log(identifyStreamType(_remoteStream));
+        // call.on('close', () => {
 
-            // const audio = document.getElementsByTagName('audio');
-            // if (audio) audio.remove();
+        // const audio = document.getElementsByTagName('audio');
+        // if (audio) audio.remove();
 
-            // // Remove video element if it exists
-            // const video = document.getElementsByTagName('video');
-            // if (video) video.remove();
-        });
+        // // Remove video element if it exists
+        // const video = document.getElementsByTagName('video');
+        // if (video) video.remove();
+        // });
     })
 
     const callPeers = (peer_id = null) => {
-        const tracks = [];
-
-        if (micStream instanceof MediaStream) {
-            tracks.push(...micStream.getAudioTracks());
-        }
-
-        if (cameraStream instanceof MediaStream) {
-            tracks.push(...cameraStream.getVideoTracks());
-        }
-
-        const streams = new MediaStream(tracks);
-
         if (peer_id !== null) {
-            peer.call(peer_id, streams);
+            if(micStream) {
+                console.log('send mic stram');
+                
+                peer.call(peer_id, micStream);
+            }
+            if(cameraStream) {
+                console.log('send camera stram');
+                peer.call(peer_id, cameraStream);
+            }
         } else {
             peer_ids.forEach(user => {
-                peer.call(user.peer_id, streams);
+                if(micStream) {
+                    peer.call(user.peer_id, micStream);
+                }
+                if(cameraStream) {
+                    peer.call(user.peer_id, cameraStream);
+                }
             })
         }
     }
@@ -118,7 +105,7 @@ function initializeRoom() {
 
         for (const track of stream.getTracks()) {
             if (track && callbacks[track.kind]) {
-                callbacks[track.kind](stream);
+               return callbacks[track.kind](stream);
             }
         }
     }
