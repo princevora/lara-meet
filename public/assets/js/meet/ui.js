@@ -24,8 +24,13 @@ export const handleMediaEnd = (media = 0, videoElement = null) => {
     const expectedDevice = media == 0 ? 'microphone' : 'camera';
 
     if (media == 1) {
-        videoElement.srcObject = null;
-        $('.heading').removeClass('hidden');
+        if(videoElement.length){
+            videoElement.srcObject = null;
+        }
+
+        if($('.heading')){
+            $('.heading').removeClass('hidden');
+        }
     }
 
     cookieStore.set(`${expectedMedia}-allowed`, 0);

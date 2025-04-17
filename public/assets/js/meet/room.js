@@ -18,11 +18,125 @@ function initializeRoom() {
     };
 
     const peer = new Peer(peerConfig);
+    let micStream, cameraStream;
+    let peer_ids = [];
 
     peer.on('open', peer_id => {
         // this will help to broadcast our peer id to others so they can call us.
         Livewire.dispatch('add-user-to-room', { peer_id });
     })
+
+    peer.on('call', call => {
+        let _remoteStream;
+        call.answer();
+
+        call.on('stream', remoteStream => {
+            _remoteStream = remoteStream;
+
+            if (remoteStream && remoteStream instanceof MediaStream) {
+                const videoTracks = remoteStream.getVideoTracks();
+                const audioTracks = remoteStream.getAudioTracks();
+
+                if (videoTracks.length) {
+                    const videoStream = new MediaStream(videoTracks);
+                    handleRemoteCameraStream(videoStream);
+                }
+
+                if (audioTracks.length) {
+                    const audioStream = new MediaStream(audioTracks);
+                    handleRemoteAudioStream(audioStream);
+                }
+            }
+        })
+
+        call.on('close', () => {
+            console.log(identifyStreamType(_remoteStream));
+
+            // const audio = document.getElementsByTagName('audio');
+            // if (audio) audio.remove();
+
+            // // Remove video element if it exists
+            // const video = document.getElementsByTagName('video');
+            // if (video) video.remove();
+        });
+    })
+
+    const callPeers = (peer_id = null) => {
+        const tracks = [];
+
+        if (micStream instanceof MediaStream) {
+            tracks.push(...micStream.getAudioTracks());
+        }
+
+        if (cameraStream instanceof MediaStream) {
+            tracks.push(...cameraStream.getVideoTracks());
+        }
+
+        const streams = new MediaStream(tracks);
+
+        if (peer_id !== null) {
+            peer.call(peer_id, streams);
+        } else {
+            peer_ids.forEach(user => {
+                peer.call(user.peer_id, streams);
+            })
+        }
+    }
+
+    const handleRemoteCameraStream = (stream) => {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.id = "test";
+        video.autoplay = true;
+        video.muted = true; // helpful for autoplay
+        video.playsInline = true;
+
+        video.play().catch(err => {
+            console.error('Playback failed:', err);
+        });
+
+        document.body.appendChild(video);
+    }
+
+    const handleRemoteAudioStream = (stream) => {
+        const audio = document.createElement('audio');
+        audio.srcObject = stream;
+        audio.muted = true;
+        audio.autoplay = true;
+        audio.playsInline = true;
+        document.body.appendChild(audio);
+
+        audio.muted = false;
+        audio.play();
+    }
+
+    const identifyStreamType = (stream) => {
+        const callbacks = {
+            video: handleRemoteCameraStream,
+            audio: handleRemoteAudioStream
+        }
+
+        for (const track of stream.getTracks()) {
+            if (track && callbacks[track.kind]) {
+                callbacks[track.kind](stream);
+            }
+        }
+    }
+
+    document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
+        console.log('JOined');
+
+        const user_peer = {
+            id: user.user_id,
+            peer_id: user.peer_id
+        }
+
+        // store in the frontend - temporary to access real time users
+        peer_ids.push(user_peer);
+
+        // call the peer when joins
+        callPeers(user.peer_id);
+    });
 
     // Listen for the frontend event when the alpine will be fully initiazlied
 
@@ -30,83 +144,14 @@ function initializeRoom() {
         return;
 
     document.addEventListener('existing-members', async (event) => {
-        const [micStream, cameraStream] = await initializeMediaDevices(false);
+        [micStream, cameraStream] = await initializeMediaDevices(false);
 
         waitForAlpineInit(() => {
+
             const data = event.detail[0];
             const instance = window.roomMembersInstance;
             const users = instance.users;
             const room_id = instance.room;
-            let peer_ids = [];
-
-            const handleRemoteCameraStream = (stream) => {
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.id = "test";
-                video.autoplay = true;
-                video.muted = true; // helpful for autoplay
-                video.playsInline = true;
-
-                video.play().catch(err => {
-                    console.error('Playback failed:', err);
-                });
-
-                document.body.appendChild(video);
-            }
-
-            const handleRemoteAudioStream = (stream) => {
-                const audio = document.createElement('audio');
-                audio.srcObject = stream;
-                audio.autoplay = true;
-                audio.playsInline = true;
-                document.body.appendChild(audio);
-
-                audio.muted = false;
-                audio.play();
-            }
-
-            const identifyStreamType = (stream) => {
-                const callbacks = {
-                    video: handleRemoteCameraStream,
-                    audio: handleRemoteAudioStream
-                }
-
-                for (const track of stream.getTracks()) {
-                    if (track && callbacks[track.kind]) {
-                        return callbacks[track.kind];
-                    }
-                }
-            }
-
-            peer.on('call', call => {
-                call.answer();
-
-                call.on('stream', rStream => {
-                    if (rStream && rStream instanceof MediaStream) {
-                        // call the identifyStreamType function
-                        // and call back the function which is being called. 
-                        identifyStreamType(rStream)(rStream);
-                    }
-                })
-
-                call.on('close', () => {
-                    const audio = document.getElementsByTagName('audio');
-                    if (audio) audio.remove();
-
-                    // Remove video element if it exists
-                    const video = document.getElementsByTagName('video');
-                    if (video) video.remove();
-                });
-            })
-
-            document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
-                const user_peer = {
-                    id: user.user_id,
-                    peer_id: user.peer_id
-                }
-
-                peer_ids.push(user_peer);
-            });
 
             document.addEventListener('event:peer-left', ({ detail: { user } }) => {
                 peer_ids = peer_ids.filter(u => {
@@ -130,9 +175,7 @@ function initializeRoom() {
             });
 
             if (micStream || cameraStream) {
-                peer_ids.forEach(user => {
-                    peer.call(user.peer_id, micStream || cameraStream);
-                })
+                callPeers();
             }
         });
     });
@@ -187,8 +230,6 @@ updateDateTime();
 
 async function screenCapture() {
     if (popover) {
-        console.log('popoever');
-
         popover.hide();
         popover = null;
     }
