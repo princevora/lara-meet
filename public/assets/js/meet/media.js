@@ -2,6 +2,7 @@ import { ignoreChange, getPermissions, devicePerms, deviceEnumerate, loadedDevic
 import { handleMediaEnd, ignores, updateMediaUI } from './ui.js';
 import { showError, openModal } from './modal.js';
 import { modifyButton } from './main.js';
+import { broadcastMedia } from './room.js';
 
 export const deviceConfig = {
     mic: { stream: null },
@@ -353,7 +354,9 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
 };
 
 export const requestMicrophone = async () => {
-    const [micState] = await getPermissions();
+    const micState = devicePerms.mic.state;
+
+    // devicePerms.mic
     ignoreChange.mic = true;
 
     if (micState !== 'granted' && micState === 'prompt') {
@@ -369,7 +372,7 @@ export const requestMicrophone = async () => {
 };
 
 export const requestCamera = async () => {
-    const [, cameraState] = await getPermissions();
+    const cameraState = devicePerms.camera.state;
     ignoreChange.camera = true;
 
     if (cameraState !== 'granted' && cameraState === 'prompt') {
@@ -392,9 +395,13 @@ export const handleMediaChange = (e, media = 0) => {
         const btns = document.querySelectorAll('.btn-circle');
         const expectedMedia = media == 0 ? 'mic' : 'camera';
         const expectedDevice = media == 0 ? 'microphone' : 'camera';
+        
+        devicePerms[expectedMedia].state = state;
 
         if (state === 'granted') {
-            handleGrantedMedia(media);
+            handleGrantedMedia(media).then((streams) => {
+                broadcastMedia(media, streams);
+            });
             modifyButton(true, expectedDevice)
 
             btns[media].onclick = () => toggleMediaUI(media);

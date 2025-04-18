@@ -8,11 +8,13 @@ export const ignoreChange = {
 export const devicePerms = {
     mic: {
         tracks: null,
-        hasPerms: false
+        hasPerms: false,
+        state: ''
     },
     camera: {
         tracks: null,
-        hasPerms: false
+        hasPerms: false,
+        state: ''
     },
 };
 
@@ -54,11 +56,27 @@ export const getPermissions = async () => {
         micPerms.onchange = (e) => handleMediaChange(e, 0);
 
         const cameraPerms = await navigator.permissions.query({ name: 'camera' });
-        cameraPerms.onchange = (e) => handleMediaChange(e, 1);
+        cameraPerms.onchange = (e) => handleMediaChange(e, 1)
 
-        if (micPerms.state == 'granted') devicePerms.mic.hasPerms = true;
-        if (cameraPerms.state == 'granted') devicePerms.camera.hasPerms = true;
+        if (micPerms.state == 'granted') {
+            const data = {
+                ...devicePerms.mic,
+                hasPerms: true,
+            }
+            
+            devicePerms.mic = data;
+        }
+        if (cameraPerms.state == 'granted'){
+            const data = {
+                ...devicePerms.camera,
+                hasPerms: true,
+            }
+    
+            devicePerms.camera = data;
+        } 
 
+        devicePerms.mic.state = micPerms.state;
+        devicePerms.camera.state = cameraPerms.state;
 
         return [micPerms.state, cameraPerms.state];
     } catch (error) {

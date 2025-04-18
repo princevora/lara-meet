@@ -3,24 +3,48 @@ import { initializeMediaDevices } from './main.js';
 let stream = null;
 let popover;
 let popoverOpenable = false;
-
+let peer_ids = [];
+let micStream, cameraStream;
 const btn = $('#screen-capture');
 const popoverBtn = document.getElementById('screen-capture');
-const ice_server = "stun:stun.l.google.com:19302";
+const url = "stun:stun.l.google.com:19302";
+const peerConfig = {
+    config: {
+        iceServers: [
+            { url }
+        ]
+    }
+};
+
+const peer = new Peer(peerConfig);
+
+const callPeers = (peer_id = null) => {
+    if (peer_id !== null) {
+        if(micStream) {
+            peer.call(peer_id, micStream);
+        }
+        if(cameraStream) {
+            peer.call(peer_id, cameraStream);
+        }
+    } else {
+        peer_ids.forEach(user => {
+            if(micStream) {
+                peer.call(user.peer_id, micStream);
+            }
+            if(cameraStream) {
+                peer.call(user.peer_id, cameraStream);
+            }
+        })
+    }
+}
+
+export function broadcastMedia (media, streams) {
+    [micStream, cameraStream] = streams;
+    
+    callPeers();
+}
 
 function initializeRoom() {
-    const peerConfig = {
-        config: {
-            iceServers: [
-                { url: 'stun:stun.l.google.com:19302' }
-            ]
-        }
-    };
-
-    const peer = new Peer(peerConfig);
-    let micStream, cameraStream;
-    let peer_ids = [];
-
     peer.on('open', peer_id => {
         // this will help to broadcast our peer id to others so they can call us.
         Livewire.dispatch('add-user-to-room', { peer_id });
@@ -46,29 +70,6 @@ function initializeRoom() {
         // if (video) video.remove();
         // });
     })
-
-    const callPeers = (peer_id = null) => {
-        if (peer_id !== null) {
-            if(micStream) {
-                console.log('send mic stram');
-                
-                peer.call(peer_id, micStream);
-            }
-            if(cameraStream) {
-                console.log('send camera stram');
-                peer.call(peer_id, cameraStream);
-            }
-        } else {
-            peer_ids.forEach(user => {
-                if(micStream) {
-                    peer.call(user.peer_id, micStream);
-                }
-                if(cameraStream) {
-                    peer.call(user.peer_id, cameraStream);
-                }
-            })
-        }
-    }
 
     const handleRemoteCameraStream = (stream) => {
         const video = document.createElement('video');
