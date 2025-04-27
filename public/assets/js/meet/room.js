@@ -19,28 +19,29 @@ const peerConfig = {
 const peer = new Peer(peerConfig);
 
 const callPeers = (peer_id = null) => {
-    if (peer_id !== null) {
-        if(micStream) {
-            peer.call(peer_id, micStream);
-        }
-        if(cameraStream) {
-            peer.call(peer_id, cameraStream);
-        }
-    } else {
-        peer_ids.forEach(user => {
-            if(micStream) {
-                peer.call(user.peer_id, micStream);
+    const ids = peer_id == null ? peer_ids : [{
+        peer_id
+    }];
+
+    ids.forEach(user => {
+        if (micStream) {
+            const call = peer.call(user.peer_id, micStream);
+            if(user?.call?.mic){
+                user.call.mic = call;
             }
-            if(cameraStream) {
-                peer.call(user.peer_id, cameraStream);
+        }
+        if (cameraStream) {
+            const call = peer.call(user.peer_id, cameraStream);
+            if(user?.call?.cmera){
+                user.call.camera = call;
             }
-        })
-    }
+        }
+    })
 }
 
-export function broadcastMedia (media, streams) {
+export function broadcastMedia(media, streams) {
     [micStream, cameraStream] = streams;
-    
+
     callPeers();
 }
 
@@ -60,15 +61,17 @@ function initializeRoom() {
             identifyStreamType(remoteStream);
         })
 
-        // call.on('close', () => {
+        call.on('close', () => {
 
-        // const audio = document.getElementsByTagName('audio');
-        // if (audio) audio.remove();
+            console.log('CLosedd da ');
 
-        // // Remove video element if it exists
-        // const video = document.getElementsByTagName('video');
-        // if (video) video.remove();
-        // });
+            // const audio = document.getElementsByTagName('audio');
+            // if (audio) audio.remove();
+
+            // // Remove video element if it exists
+            const video = document.getElementsByTagName('video');
+            if (video) video.remove();
+        });
     })
 
     const handleRemoteCameraStream = (stream) => {
@@ -106,17 +109,19 @@ function initializeRoom() {
 
         for (const track of stream.getTracks()) {
             if (track && callbacks[track.kind]) {
-               return callbacks[track.kind](stream);
+                return callbacks[track.kind](stream);
             }
         }
     }
 
     document.addEventListener('event:peer-joined', ({ detail: { user } }) => {
-        console.log('JOined');
-
         const user_peer = {
             id: user.user_id,
-            peer_id: user.peer_id
+            peer_id: user.peer_id,
+            call: {
+                mic: null,
+                camera: null
+            }
         }
 
         // store in the frontend - temporary to access real time users
@@ -126,13 +131,19 @@ function initializeRoom() {
         callPeers(user.peer_id);
     });
 
+    document.addEventListener('cameraStopped', () => {
+    })
+
     // Listen for the frontend event when the alpine will be fully initiazlied
 
     if (Alpine == undefined || Livewire == undefined || Echo == undefined)
         return;
 
     document.addEventListener('existing-members', async (event) => {
-        [micStream, cameraStream] = await initializeMediaDevices(false);
+        [micStream, cameraStream] = await initializeMediaDevices(false)
+
+        console.log(micStream, cameraStream);
+
 
         waitForAlpineInit(() => {
 
@@ -143,8 +154,9 @@ function initializeRoom() {
 
             document.addEventListener('event:peer-left', ({ detail: { user } }) => {
                 peer_ids = peer_ids.filter(u => {
-                    return u.id !== user.id;
+                    return u.id !== user.id
                 });
+
             });
 
             window.addEventListener('beforeunload', () => {
@@ -182,22 +194,7 @@ function waitForAlpineInit(callback, interval = 100) {
 }
 
 // Initialize the button onclick event.
-popoverBtn.onclick = screenCapture;
-
-// document.addEventListener('DOMContentLoaded', async () => {
-//     const { getPermissions } = await import('./permissions.js'); // Lazy import
-//     const { deviceConfig, dispatchEvent } = await import('./media.js'); // Lazy import
-//     const [micState, cameraState] = await getPermissions();
-
-//     if (cameraState == 'granted') {
-//         document.addEventListener('roomProfile', (e) => {
-//         });
-//     }
-
-//     if (micState == 'granted') {
-//         const broadcastAudio = dispatchEvent('broadcastAudio');
-//     }
-// });
+if (popoverBtn) popoverBtn.onclick = screenCapture;
 
 function showDate() {
     const date = new Date();

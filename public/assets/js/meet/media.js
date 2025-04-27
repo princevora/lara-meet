@@ -288,8 +288,12 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
 
                 document.addEventListener('stopcameraTrack', () => {
                     if (tracks.readyState == 'live') {
+
                         // Disable previous track
                         disabledTrack();
+
+                        const endEvent = new CustomEvent('cameraStopped');
+                        document.dispatchEvent(endEvent);
 
                         if (videoElement) {
                             videoElement.srcObject = null;
