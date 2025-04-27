@@ -66,14 +66,17 @@
                     room_id: null,
                     room: null,
                     isLoading: true,
+                    member_card_prefix: 'member-',
                     init() {
                         if (window._echoInitDone) return;
                         window._echoInitDone = true;
                         window.roomMembersInstance = this;
-                       
+
                         this.room_id = @json($meeting->id);
                         this.room = @json($room);
-                        const roomId = @json($room); 
+                        const roomId = @json($room);
+
+                        this.createMemberCard();
 
                         Echo.join(`user-joined.${roomId}`)
                             .listen('.UserJoined', user => {
@@ -87,12 +90,15 @@
                             })
                             .here(users => {
                                 this.users = users.map(u => this.formatUser(u));
-                                
+                                this.users.map(user => this.createMemberCard(user));
+
                                 this.isLoading = false;
                             })
                             .joining(user => {
                                 if (!this.users.find(u => u.id === user.id)) {
-                                    this.users.push(this.formatUser(user));
+                                    const formatedUser = this.formatUser(user);
+                                    this.users.push(formatedUser);
+                                    this.createMemberCard(formatedUser);
                                 }
 
                                 const message = `User ${user.name} has been Joined 👋`;
@@ -102,12 +108,14 @@
                             })
                             .leaving(user => {
                                 this.users = this.users.filter(u => u.id !== user.id);
+                                this.removeMemberCard(user.id);
 
                                 const event = new CustomEvent('event:peer-left', {
                                     detail: {
                                         user
                                     }
                                 });
+
 
                                 document.dispatchEvent(event);
 
@@ -123,6 +131,56 @@
                             name: user.name.length > 15 ? user.name.slice(0, 15) + '…' : user.name,
                             initial: user.name.charAt(0).toUpperCase(),
                         };
+                    },
+                    createMemberCard(user) {
+                        const card_bgs = [
+                            'bg-gradient-to-br from-purple-600 to-indigo-500',
+                            'bg-gradient-to-br from-blue-500',
+                            'bg-gradient-to-br from-green-500 to-teal-400',
+                            'bg-gradient-to-br from-pink-500 to-rose-400',
+                            'bg-gradient-to-br from-orange-500 to-amber-400'
+                        ];
+
+                        const randomColor = card_bgs[Math.floor(Math.random() * card_bgs.length)];
+
+                        if (user) {
+                            const cardContainer = document.getElementById('members-list');
+
+                            // Create card element
+                            const card = document.createElement('div');
+                            card.classList.add(
+                                'flex', 'flex-col', 'items-center', 'p-5', 'bg-gray-800',
+                                'rounded-xl', 'shadow-lg', 'hover:shadow-purple-500/20',
+                                'transition-all', 'duration-300', 'hover:-translate-y-1',
+                                'hover:border-purple-500/30', 'w-1/3', 'flex-shrink-0', 'flex-grow'
+                            );
+
+                            card.id = this.member_card_prefix + user.id;
+
+                            const circle = document.createElement('div');
+                            circle.classList.add('flex', 'items-center', 'justify-center', 'w-14', 'h-14',
+                                'mb-3', 'rounded-full', ...randomColor.split(' '),
+                                'text-white', 'text-2xl', 'font-bold', 'shadow-md');
+                            circle.textContent = user.initial;
+
+                            const name = document.createElement('h3');
+                            name.classList.add('text-base', 'font-medium', 'text-gray-100');
+                            name.textContent = user.name;
+
+                            const title = document.createElement('p');
+                            title.classList.add('text-xs', 'text-gray-400');
+                            title.textContent = 'Member';
+
+                            card.appendChild(circle);
+                            card.appendChild(name);
+                            card.appendChild(title);
+
+                            cardContainer.appendChild(card);
+                        }
+                    },
+                    removeMemberCard(user_id) {
+                        document.getElementById(this.member_card_prefix + user_id)
+                            .remove();
                     }
                 }));
             });

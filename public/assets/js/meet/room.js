@@ -142,9 +142,6 @@ function initializeRoom() {
     document.addEventListener('existing-members', async (event) => {
         [micStream, cameraStream] = await initializeMediaDevices(false)
 
-        console.log(micStream, cameraStream);
-
-
         waitForAlpineInit(() => {
 
             const data = event.detail[0];
