@@ -32,7 +32,7 @@
     @endpush
 
     <div wire:ignore class="p-4">
-        <div id="members-list" class="flex gap-4 flex-wrap w-full justify-center"></div>
+        <div id="members-list" class="flex gap-4 flex-wrap w-full justify-center items-center"></div>
     </div>
 
     {{-- <video id="videoElement"></video> --}}

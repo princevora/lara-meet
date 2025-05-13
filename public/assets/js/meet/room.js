@@ -8,6 +8,9 @@ let micStream, cameraStream;
 const btn = $('#screen-capture');
 const popoverBtn = document.getElementById('screen-capture');
 const url = "stun:stun.l.google.com:19302";
+const prefix = {
+    member_card_prefix: 'member-',
+}
 const peerConfig = {
     config: {
         iceServers: [
@@ -19,30 +22,47 @@ const peerConfig = {
 const peer = new Peer(peerConfig);
 
 const callPeers = (peer_id = null) => {
+    const instance = window.roomMembersInstance;
+
     const ids = peer_id == null ? peer_ids : [{
         peer_id
     }];
 
     ids.forEach(user => {
-        if (micStream) {
+        if (micStream && !isStreamActive(micStream)) {
             const call = peer.call(user.peer_id, micStream);
-            if(user?.call?.mic){
+            if (user?.call?.mic) {
                 user.call.mic = call;
             }
         }
-        if (cameraStream) {
+
+        if (cameraStream && cameraStream.getTracks().every(t => t.enabled && t.readyState == "live")) {
             const call = peer.call(user.peer_id, cameraStream);
-            if(user?.call?.cmera){
+            if (user?.call?.cmera) {
                 user.call.camera = call;
             }
         }
     })
 }
 
-export function broadcastMedia(media, streams) {
+export function broadcastMedia(streams) {
     [micStream, cameraStream] = streams;
 
     callPeers();
+}
+
+function createObjSrcVideo(stream) {
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.autoplay = true;
+    video.muted = true; // helpful for autoplay
+    video.playsInline = true;
+
+    video.play().catch(err => {
+        console.error('Playback failed:', err);
+    });
+
+    return video;
 }
 
 function initializeRoom() {
@@ -52,11 +72,13 @@ function initializeRoom() {
     })
 
     peer.on('call', call => {
-        let _remoteStream;
         call.answer();
 
         call.on('stream', remoteStream => {
-            _remoteStream = remoteStream;
+
+            // setInterval(() => {
+            //     console.log(remoteStream.getTracks().every(track => track.readyState === "ended"));
+            // }, 1000);
 
             identifyStreamType(remoteStream);
         })
@@ -75,16 +97,9 @@ function initializeRoom() {
     })
 
     const handleRemoteCameraStream = (stream) => {
-        const video = document.createElement('video');
-        video.srcObject = stream;
+        const video = createObjSrcVideo(stream);
         video.id = "test";
-        video.autoplay = true;
-        video.muted = true; // helpful for autoplay
-        video.playsInline = true;
 
-        video.play().catch(err => {
-            console.error('Playback failed:', err);
-        });
 
         document.body.appendChild(video);
     }
@@ -170,6 +185,32 @@ function initializeRoom() {
 
                 peer_ids.push(user_peer);
             });
+
+            if (cameraStream) {
+                const cardContainer = document.getElementById('members-list');
+                const card = document.createElement('div');
+                card.classList.add(
+                    ...`flex flex-col items-center
+                    rounded-xl
+                    transition-all duration-300 hover:-translate-y-1
+                    hover:border-purple-500/30 w-1/3 flex-shrink-0 flex-grow relative`
+                    .trim().split(/\s+/)
+                );
+
+                const userCard = document.getElementById(prefix.member_card_prefix + instance.currentUserId);
+                const video = createObjSrcVideo(cameraStream);
+                video.classList.add('rounded-md');
+
+                // create the user's name span in the video element on bottom left
+                const span = document.createElement('span');
+                span.classList.add(...'absolute bottom-0 left-0 p-2 text-white rounded-md font-bold bg-gray-700 bg-opacity-50'.split(' '));
+                span.innerText = instance.currentUserName;
+
+                userCard.classList.toggle('hidden');
+                card.appendChild(span);                
+                card.appendChild(video);
+                cardContainer.appendChild(card);
+            }
 
             if (micStream || cameraStream) {
                 callPeers();

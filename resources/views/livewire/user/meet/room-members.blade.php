@@ -62,6 +62,7 @@
                 Alpine.data('roomMembers', () => ({
                     open: true, // assume drawer is opened by parent logic
                     currentUserId: @json(auth()->user()->id),
+                    currentUserName: @json(auth()->user()->name),
                     users: [],
                     room_id: null,
                     room: null,
@@ -152,7 +153,9 @@
                                 'flex', 'flex-col', 'items-center', 'p-5', 'bg-gray-800',
                                 'rounded-xl', 'shadow-lg', 'hover:shadow-purple-500/20',
                                 'transition-all', 'duration-300', 'hover:-translate-y-1',
-                                'hover:border-purple-500/30', 'w-1/3', 'flex-shrink-0', 'flex-grow'
+                                'hover:border-purple-500/30', 'w-1/3', 'flex-shrink-0', 'flex-grow',
+                                'min-h-[20.4rem]',
+                                'justify-center'
                             );
 
                             card.id = this.member_card_prefix + user.id;
@@ -165,7 +168,7 @@
 
                             const name = document.createElement('h3');
                             name.classList.add('text-base', 'font-medium', 'text-gray-100');
-                            name.textContent = user.name;
+                            name.textContent = this.currentUserId == user.id ? 'You' : user.name;
 
                             const title = document.createElement('p');
                             title.classList.add('text-xs', 'text-gray-400');

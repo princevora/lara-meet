@@ -312,7 +312,7 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                 });
 
                 const disabledTrack = () => {
-                    return tracks.stop();
+                    return tracks.enabled = false;
                 }
                 document.addEventListener('disablecameraTrack', () => {
                     if (tracks.readyState == 'live') {
@@ -321,7 +321,8 @@ export const loadVideoSrc = (changeTrack = false, deviceId = null) => {
                 });
 
                 document.addEventListener('resumecameraTrack', async () => {
-                    await loadVideoSrc(changeTrack, deviceId);
+                    tracks.enabled = true;
+                    broadcastMedia([undefined, stream]);
                 });
 
                 resolve(stream);
@@ -404,7 +405,7 @@ export const handleMediaChange = (e, media = 0) => {
 
         if (state === 'granted') {
             handleGrantedMedia(media).then((streams) => {
-                broadcastMedia(media, streams);
+                broadcastMedia(streams);
             });
             modifyButton(true, expectedDevice)
 
