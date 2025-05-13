@@ -32,7 +32,7 @@
     
 </head>
 
-<body class="dark h-[10px]">
+<body class="dark overflow-auto">
 
     {{ $slot }}
 

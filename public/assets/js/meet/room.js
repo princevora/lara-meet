@@ -10,6 +10,7 @@ const popoverBtn = document.getElementById('screen-capture');
 const url = "stun:stun.l.google.com:19302";
 const prefix = {
     member_card_prefix: 'member-',
+    member_video_card_prefix: 'video-'
 }
 const peerConfig = {
     config: {
@@ -37,7 +38,12 @@ const callPeers = (peer_id = null) => {
         }
 
         if (cameraStream && cameraStream.getTracks().every(t => t.enabled && t.readyState == "live")) {
-            const call = peer.call(user.peer_id, cameraStream);
+            const call = peer.call(user.peer_id, cameraStream, {
+                metadata: {
+                    username: instance.currentUserName,
+                    user_id: instance.currentUserId
+                }
+            });
             if (user?.call?.cmera) {
                 user.call.camera = call;
             }
@@ -65,6 +71,42 @@ function createObjSrcVideo(stream) {
     return video;
 }
 
+function createUserVideoCard(stream, card_id, user_name) {
+    const card = document.createElement('div');
+    card.classList.add(
+        ...`flex flex-col items-center
+        rounded-xl
+        transition-all duration-300 hover:-translate-y-1
+        hover:border-purple-500/30 w-1/3 flex-shrink-0 flex-grow relative overflow-hidden bg-black`
+            .trim().split(/\s+/)
+    );
+
+    const userCard = document.getElementById(card_id);
+
+    // Create and configure video element
+    const video = createObjSrcVideo(stream);
+    video.classList.add(
+        ...'rounded-md w-full aspect-video object-cover'.split(' ')
+    );
+    video.playsInline = true;
+    video.autoplay = true;
+    video.muted = true;
+
+    // Create the user's name label
+    const span = document.createElement('span');
+    span.classList.add(
+        ...'absolute bottom-0 left-0 p-2 text-white rounded-md font-bold bg-gray-700 bg-opacity-50 z-10'.split(' ')
+    );
+    span.innerText = user_name;
+
+    // Final DOM setup
+    userCard.classList.toggle('hidden');
+    card.appendChild(span);
+    card.appendChild(video);
+
+    return card;
+}
+
 function initializeRoom() {
     peer.on('open', peer_id => {
         // this will help to broadcast our peer id to others so they can call us.
@@ -72,39 +114,40 @@ function initializeRoom() {
     })
 
     peer.on('call', call => {
+        const { metadata } = call;
+
         call.answer();
 
         call.on('stream', remoteStream => {
-
-            // setInterval(() => {
-            //     console.log(remoteStream.getTracks().every(track => track.readyState === "ended"));
-            // }, 1000);
-
-            identifyStreamType(remoteStream);
+            identifyStreamType(remoteStream, metadata);
         })
 
         call.on('close', () => {
-
-            console.log('CLosedd da ');
-
-            // const audio = document.getElementsByTagName('audio');
-            // if (audio) audio.remove();
-
-            // // Remove video element if it exists
-            const video = document.getElementsByTagName('video');
-            if (video) video.remove();
+            // check if the caller video card is available
+            const videoElement = document.getElementById(prefix.member_video_card_prefix + metadata.user_id);
+            
+            if(videoElement){
+                videoElement.remove();
+            }
         });
     })
 
-    const handleRemoteCameraStream = (stream) => {
-        const video = createObjSrcVideo(stream);
-        video.id = "test";
+    const handleRemoteCameraStream = (stream, metadata = null) => {
+        const cardContainer = document.getElementById('members-list');
+        const card_id = prefix.member_card_prefix + metadata.user_id;
+        const user_name = metadata.username;
 
+        const card = createUserVideoCard(stream, card_id, user_name);
+        card.id = prefix.member_video_card_prefix + metadata.user_id
 
-        document.body.appendChild(video);
+        cardContainer.appendChild(card);
+
+        stream.onended = (e) => {
+            cardContainer.removeChild(card);
+        }
     }
 
-    const handleRemoteAudioStream = (stream) => {
+    const handleRemoteAudioStream = (stream, metadata = null) => {
         const audio = document.createElement('audio');
         audio.srcObject = stream;
         audio.muted = true;
@@ -116,7 +159,7 @@ function initializeRoom() {
         audio.play();
     }
 
-    const identifyStreamType = (stream) => {
+    const identifyStreamType = (stream, metadata = null) => {
         const callbacks = {
             video: handleRemoteCameraStream,
             audio: handleRemoteAudioStream
@@ -124,7 +167,7 @@ function initializeRoom() {
 
         for (const track of stream.getTracks()) {
             if (track && callbacks[track.kind]) {
-                return callbacks[track.kind](stream);
+                return callbacks[track.kind](stream, metadata);
             }
         }
     }
@@ -188,28 +231,17 @@ function initializeRoom() {
 
             if (cameraStream) {
                 const cardContainer = document.getElementById('members-list');
-                const card = document.createElement('div');
-                card.classList.add(
-                    ...`flex flex-col items-center
-                    rounded-xl
-                    transition-all duration-300 hover:-translate-y-1
-                    hover:border-purple-500/30 w-1/3 flex-shrink-0 flex-grow relative`
-                    .trim().split(/\s+/)
-                );
+                const card_id = prefix.member_card_prefix + instance.currentUserId;
+                const user_name = instance.currentUserName;
 
-                const userCard = document.getElementById(prefix.member_card_prefix + instance.currentUserId);
-                const video = createObjSrcVideo(cameraStream);
-                video.classList.add('rounded-md');
+                const card = createUserVideoCard(cameraStream, card_id, user_name);
+                card.id = prefix.member_video_card_prefix + instance.currentUserId
 
-                // create the user's name span in the video element on bottom left
-                const span = document.createElement('span');
-                span.classList.add(...'absolute bottom-0 left-0 p-2 text-white rounded-md font-bold bg-gray-700 bg-opacity-50'.split(' '));
-                span.innerText = instance.currentUserName;
-
-                userCard.classList.toggle('hidden');
-                card.appendChild(span);                
-                card.appendChild(video);
                 cardContainer.appendChild(card);
+
+                cameraStream.onended = (e) => {
+                    cardContainer.removeChild(card);
+                }
             }
 
             if (micStream || cameraStream) {
