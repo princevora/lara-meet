@@ -1,5 +1,5 @@
 
-# Lara Meet
+# Lara Meet (Under Development)
 
 **Lara Meet** is a Laravel-based web application that emulates the core functionalities of Google Meet, enabling real-time one-to-one video conferencing using WebRTC and Laravel Echo.
 
